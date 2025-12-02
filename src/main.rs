@@ -34,7 +34,7 @@ impl<'a> Gnobbler<'a> {
         self.player.update(delta_time, self.assets);
         self.camera.target = self.player.camera_pos.floor();
         set_camera(&self.camera);
-        clear_background(GRAY);
+        clear_background(Color::from_hex(0x00aaff));
         for chunk in &self.assets.world.collision {
             chunk.draw(self.assets);
         }

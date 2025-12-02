@@ -80,7 +80,7 @@ impl Player {
         self.velocity.y += GRAVITY * delta_time;
         (self.pos, self.grounded) =
             update_physicsbody(self.pos, &mut self.velocity, delta_time, &assets.world);
-        self.camera_pos = vec2(self.pos.x.max(SCREEN_WIDTH / 2.0), self.pos.y);
+        self.camera_pos = vec2(self.pos.x.max(SCREEN_WIDTH / 2.0), self.pos.y - 32.0);
     }
     pub fn draw(&mut self, assets: &Assets) {
         draw_texture_ex(
