@@ -279,7 +279,7 @@ pub struct Chunk {
 }
 impl Chunk {
     pub fn tile_at(&self, x: usize, y: usize) -> Option<i16> {
-        if x > 16 {
+        if x > 16 || y > 16 {
             return None;
         }
         self.tiles.get(x + y * 16).cloned()
