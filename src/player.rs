@@ -28,7 +28,7 @@ impl Player {
     pub fn new(pos: Vec2) -> Self {
         Self {
             pos,
-            camera_pos: pos + vec2(SCREEN_WIDTH / 2.0, 0.0),
+            camera_pos: pos + vec2(SCREEN_WIDTH / 2.0, -24.0),
             time: 0.0,
             anim_state: AnimState::Idle,
             grounded: true,
@@ -80,7 +80,18 @@ impl Player {
         self.velocity.y += GRAVITY * delta_time;
         (self.pos, self.grounded) =
             update_physicsbody(self.pos, &mut self.velocity, delta_time, &assets.world);
-        self.camera_pos = vec2(self.pos.x.max(SCREEN_WIDTH / 2.0), self.pos.y - 32.0);
+
+        self.camera_pos.x = self.pos.x.max(SCREEN_WIDTH / 2.0);
+        let target = self.pos.y - 24.0;
+        if self.camera_pos.y < target {
+            self.camera_pos.y = target;
+        } else {
+            let delta = self.camera_pos.y - target;
+            let max_delta = 3.5 * 8.0;
+            if delta.abs() > max_delta {
+                self.camera_pos.y = max_delta * if delta < 0.0 { -1.0 } else { 1.0 } + target;
+            }
+        }
     }
     pub fn draw(&mut self, assets: &Assets) {
         draw_texture_ex(
