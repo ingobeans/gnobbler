@@ -31,8 +31,8 @@ impl<'a> Gnobbler<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        self.player.update(delta_time);
-        self.camera.target = self.player.camera_pos;
+        self.player.update(delta_time, self.assets);
+        self.camera.target = self.player.camera_pos.floor();
         set_camera(&self.camera);
         clear_background(GRAY);
         for chunk in &self.assets.world.collision {
