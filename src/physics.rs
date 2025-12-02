@@ -72,13 +72,12 @@ pub fn update_physicsbody(
     ];
 
     for (tx, ty) in tiles_x {
-        if !touched_death_tile {
+        if !touched_death_tile && tx > 0.0 {
             let death_tile = get_tile(&world.death, tx as i16, ty as i16);
             touched_death_tile = death_tile != 0;
         }
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if (tile != 0
-            && !(tile == 49 && world_state.broken_tiles.contains(&(tx as i16, ty as i16))))
+        if tile != 0 && !(tile == 49 && world_state.broken_tiles.contains(&(tx as i16, ty as i16)))
         {
             let c = if velocity.x < 0.0 {
                 tile_x.floor() * 8.0
