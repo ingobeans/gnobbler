@@ -2,7 +2,10 @@ use macroquad::prelude::*;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::ToPrimitive;
 
-use crate::{assets::Assets, physics::update_physicsbody};
+use crate::{
+    assets::{Assets, WorldState},
+    physics::update_physicsbody,
+};
 
 #[derive(FromPrimitive, ToPrimitive, Clone)]
 pub enum EnemyType {
@@ -34,11 +37,16 @@ impl Enemy {
             velocity: Vec2::ZERO,
         }
     }
-    pub fn update(&mut self, delta_time: f32, assets: &Assets) {
+    pub fn update(&mut self, delta_time: f32, assets: &Assets, world_state: &WorldState) {
         self.time += delta_time;
         self.velocity.x = if self.facing_left { -1.0 } else { 1.0 } * self.ty.speed();
-        (self.pos, _, _) =
-            update_physicsbody(self.pos, &mut self.velocity, delta_time, &assets.world);
+        (self.pos, _, _, _) = update_physicsbody(
+            self.pos,
+            &mut self.velocity,
+            delta_time,
+            &assets.world,
+            world_state,
+        );
     }
     pub fn draw(&self, assets: &Assets) {
         let id = self.ty.to_usize().unwrap();

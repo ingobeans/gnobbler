@@ -193,6 +193,7 @@ impl Spritesheet {
 #[derive(Default, Clone)]
 pub struct WorldState {
     pub enemies: Vec<Enemy>,
+    pub broken_tiles: Vec<(i16, i16)>,
 }
 pub struct World {
     pub collision: HashMap<(i16, i16), Chunk>,
@@ -249,6 +250,9 @@ impl World {
                     continue;
                 }
                 let tile = *tile - 1;
+                if tile >= 16 {
+                    continue;
+                }
                 let Some(ty) = EnemyType::from_i16(tile) else {
                     warn!("ty {tile} doesnt exist!");
                     continue;
@@ -283,23 +287,6 @@ impl Chunk {
             return None;
         }
         self.tiles.get(x + y * 16).cloned()
-    }
-    pub fn draw(&self, assets: &Assets) {
-        for (index, tile) in self.tiles.iter().enumerate() {
-            if *tile == 0 {
-                continue;
-            }
-            let tile = *tile - 1;
-            let x = index % 16;
-            let y = index / 16;
-            assets.tileset.draw_tile(
-                self.x as f32 * 8.0 + (x * 8) as f32,
-                self.y as f32 * 8.0 + (y * 8) as f32,
-                (tile % 16) as f32,
-                (tile / 16) as f32,
-                None,
-            );
-        }
     }
 }
 

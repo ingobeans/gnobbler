@@ -27,6 +27,41 @@ impl<'a> Gnobbler<'a> {
             assets,
         }
     }
+    fn draw_world(&self) {
+        for layer in [
+            &self.assets.world.collision,
+            &self.assets.world.background,
+            &self.assets.world.death,
+            &self.assets.world.details,
+            &self.assets.world.one_way_collision,
+        ] {
+            for ((cx, cy), chunk) in layer.iter() {
+                for (index, tile) in chunk.tiles.iter().enumerate() {
+                    if *tile == 0 {
+                        continue;
+                    }
+                    let tile = *tile - 1;
+                    let x = index % 16;
+                    let y = index / 16;
+                    if tile == 48
+                        && self
+                            .world_state
+                            .broken_tiles
+                            .contains(&(*cx + x as i16, *cy + y as i16))
+                    {
+                        continue;
+                    }
+                    self.assets.tileset.draw_tile(
+                        *cx as f32 * 8.0 + (x * 8) as f32,
+                        *cy as f32 * 8.0 + (y * 8) as f32,
+                        (tile % 16) as f32,
+                        (tile / 16) as f32,
+                        None,
+                    );
+                }
+            }
+        }
+    }
     fn update(&mut self) {
         // cap delta time to a minimum of 60 fps.
         let delta_time = get_frame_time().min(1.0 / 60.0);
@@ -34,28 +69,16 @@ impl<'a> Gnobbler<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        self.player.update(delta_time, self.assets);
+        self.player
+            .update(delta_time, self.assets, &mut self.world_state);
         self.camera.target = self.player.camera_pos.floor();
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
-        for chunk in self.assets.world.background.values() {
-            chunk.draw(self.assets);
-        }
-        for chunk in self.assets.world.collision.values() {
-            chunk.draw(self.assets);
-        }
-        for chunk in self.assets.world.death.values() {
-            chunk.draw(self.assets);
-        }
-        for chunk in self.assets.world.details.values() {
-            chunk.draw(self.assets);
-        }
-        for chunk in self.assets.world.one_way_collision.values() {
-            chunk.draw(self.assets);
-        }
-
-        self.world_state.enemies.retain_mut(|enemy| {
-            enemy.update(delta_time, self.assets);
+        self.draw_world();
+        let mut enemies = Vec::new();
+        std::mem::swap(&mut enemies, &mut self.world_state.enemies);
+        enemies.retain_mut(|enemy| {
+            enemy.update(delta_time, self.assets, &self.world_state);
             enemy.draw(self.assets);
             if self.player.alive() && self.player.pos.distance_squared(enemy.pos) < 64.0 {
                 if self.player.pos.y >= enemy.pos.y {
@@ -69,6 +92,7 @@ impl<'a> Gnobbler<'a> {
                 true
             }
         });
+        std::mem::swap(&mut enemies, &mut self.world_state.enemies);
 
         self.player.draw(self.assets);
 

@@ -1,6 +1,10 @@
 use macroquad::prelude::*;
 
-use crate::{assets::Assets, physics::update_physicsbody, utils::*};
+use crate::{
+    assets::{Assets, WorldState},
+    physics::update_physicsbody,
+    utils::*,
+};
 
 #[derive(Clone, Copy)]
 pub enum AnimState {
@@ -50,7 +54,7 @@ impl Player {
         self.player_state = PlayerState::Died;
         self.time = 0.0;
     }
-    pub fn update(&mut self, delta_time: f32, assets: &Assets) {
+    pub fn update(&mut self, delta_time: f32, assets: &Assets, world_state: &mut WorldState) {
         self.time += delta_time;
         match self.player_state {
             PlayerState::Active => {
@@ -90,10 +94,19 @@ impl Player {
 
                 self.velocity.y += GRAVITY * delta_time;
                 let touched_death_tile;
-                (self.pos, self.grounded, touched_death_tile) =
-                    update_physicsbody(self.pos, &mut self.velocity, delta_time, &assets.world);
+                let broke_block;
+                (self.pos, self.grounded, touched_death_tile, broke_block) = update_physicsbody(
+                    self.pos,
+                    &mut self.velocity,
+                    delta_time,
+                    &assets.world,
+                    &world_state,
+                );
                 if touched_death_tile {
                     self.die();
+                }
+                if let Some(broke_block) = broke_block {
+                    world_state.broken_tiles.push(broke_block);
                 }
 
                 self.camera_pos.x = self.pos.x.max(SCREEN_WIDTH / 2.0);

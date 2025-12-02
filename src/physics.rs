@@ -25,9 +25,11 @@ pub fn update_physicsbody(
     velocity: &mut Vec2,
     delta_time: f32,
     world: &World,
-) -> (Vec2, bool, bool) {
+    world_state: &WorldState,
+) -> (Vec2, bool, bool, Option<(i16, i16)>) {
     let mut new = pos + *velocity * delta_time;
     let mut touched_death_tile = false;
+    let mut broke_block = None;
 
     let tile_x = pos.x / 8.0;
     let tile_y = pos.y / 8.0;
@@ -42,12 +44,16 @@ pub fn update_physicsbody(
     let mut grounded = false;
     for (i, (tx, ty)) in tiles_y.into_iter().enumerate() {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if tile != 0
+        if (tile != 0
+            && !(tile == 49 && world_state.broken_tiles.contains(&(tx as i16, ty as i16))))
             || (i < 2
                 && velocity.y > 0.0
                 && get_tile(&world.one_way_collision, tx as i16, ty as i16) != 0)
         {
             let c = if velocity.y < 0.0 {
+                if tile == 49 && broke_block.is_none() {
+                    broke_block = Some((tx as i16, ty as i16));
+                }
                 tile_y.floor() * 8.0
             } else {
                 grounded = true;
@@ -71,7 +77,9 @@ pub fn update_physicsbody(
             touched_death_tile = death_tile != 0;
         }
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if tile != 0 {
+        if (tile != 0
+            && !(tile == 49 && world_state.broken_tiles.contains(&(tx as i16, ty as i16))))
+        {
             let c = if velocity.x < 0.0 {
                 tile_x.floor() * 8.0
             } else {
@@ -82,5 +90,5 @@ pub fn update_physicsbody(
             break;
         }
     }
-    (new, grounded, touched_death_tile)
+    (new, grounded, touched_death_tile, broke_block)
 }
