@@ -45,6 +45,8 @@ impl<'a> Gnobbler<'a> {
             chunk.draw(self.assets);
         }
 
+        self.player.draw(self.assets);
+
         set_default_camera();
         clear_background(BLACK);
         draw_texture_ex(
