@@ -1,9 +1,11 @@
 [package]
 name = "gnobbler"
-version = "0.2.5"
+version = "0.3.0"
 edition = "2024"
 
 [dependencies]
 macroquad = "0.4.14"
 image = "0.24.9"
 asefile = "0.3.8"
+num-derive = "0.4.2"
+num-traits = "0.2.19"

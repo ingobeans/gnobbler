@@ -1,28 +1,29 @@
 use macroquad::{miniquad::window::screen_size, prelude::*};
 
 use crate::{
-    assets::{Assets, World},
+    assets::*,
     player::Player,
     utils::{SCREEN_HEIGHT, SCREEN_WIDTH, create_camera},
 };
 
 mod assets;
+mod enemy;
 mod physics;
 mod player;
 mod utils;
-
-pub struct WorldState {}
 
 struct Gnobbler<'a> {
     assets: &'a Assets,
     player: Player,
     camera: Camera2D,
+    world_state: WorldState,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
         Self {
             player: Player::new(assets.world.get_player_spawn()),
             camera: create_camera(SCREEN_WIDTH, SCREEN_HEIGHT),
+            world_state: assets.world.world_state.clone(),
             assets,
         }
     }
@@ -52,6 +53,22 @@ impl<'a> Gnobbler<'a> {
         for chunk in self.assets.world.one_way_collision.values() {
             chunk.draw(self.assets);
         }
+
+        self.world_state.enemies.retain_mut(|enemy| {
+            enemy.update(delta_time, self.assets);
+            enemy.draw(self.assets);
+            if self.player.alive() && self.player.pos.distance_squared(enemy.pos) < 64.0 {
+                if self.player.pos.y >= enemy.pos.y {
+                    self.player.die();
+                    true
+                } else {
+                    self.player.velocity.y = -2.5 * 60.0;
+                    false
+                }
+            } else {
+                true
+            }
+        });
 
         self.player.draw(self.assets);
 

@@ -42,6 +42,14 @@ impl Player {
             player_state: PlayerState::Active,
         }
     }
+    pub fn alive(&self) -> bool {
+        matches!(self.player_state, PlayerState::Active)
+    }
+    pub fn die(&mut self) {
+        assert!(matches!(self.player_state, PlayerState::Active));
+        self.player_state = PlayerState::Died;
+        self.time = 0.0;
+    }
     pub fn update(&mut self, delta_time: f32, assets: &Assets) {
         self.time += delta_time;
         match self.player_state {
@@ -85,8 +93,7 @@ impl Player {
                 (self.pos, self.grounded, touched_death_tile) =
                     update_physicsbody(self.pos, &mut self.velocity, delta_time, &assets.world);
                 if touched_death_tile {
-                    self.player_state = PlayerState::Died;
-                    self.time = 0.0;
+                    self.die();
                 }
 
                 self.camera_pos.x = self.pos.x.max(SCREEN_WIDTH / 2.0);

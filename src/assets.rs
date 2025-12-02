@@ -3,9 +3,13 @@ use std::collections::HashMap;
 use asefile::AsepriteFile;
 use image::EncodableLayout;
 use macroquad::prelude::*;
+use num_traits::FromPrimitive;
+
+use crate::enemy::{Enemy, EnemyType};
 
 pub struct Assets {
     pub player: AnimationsGroup,
+    pub enemies: AnimationsGroup,
     pub tileset: Spritesheet,
     pub world: World,
 }
@@ -13,11 +17,12 @@ impl Assets {
     pub fn load() -> Self {
         Self {
             player: AnimationsGroup::from_file(include_bytes!("../assets/player.ase")),
+            enemies: AnimationsGroup::from_file(include_bytes!("../assets/enemies.ase")),
             tileset: Spritesheet::new(
                 load_ase_texture(include_bytes!("../assets/tileset.ase"), None),
                 8.0,
             ),
-            world: World::from_bytes(include_str!("../assets/world.tmx")),
+            world: World::from_data(include_str!("../assets/world.tmx")),
         }
     }
 }
@@ -185,8 +190,10 @@ impl Spritesheet {
     }
 }
 
-pub enum TileEntity {}
-
+#[derive(Default, Clone)]
+pub struct WorldState {
+    pub enemies: Vec<Enemy>,
+}
 pub struct World {
     pub collision: HashMap<(i16, i16), Chunk>,
     pub death: HashMap<(i16, i16), Chunk>,
@@ -194,6 +201,8 @@ pub struct World {
     pub details: HashMap<(i16, i16), Chunk>,
     pub background: HashMap<(i16, i16), Chunk>,
     pub special: HashMap<(i16, i16), Chunk>,
+
+    pub world_state: WorldState,
 }
 impl World {
     pub fn get_player_spawn(&self) -> Vec2 {
@@ -224,20 +233,41 @@ impl World {
         }
         None
     }
-    pub fn from_bytes(xml: &str) -> Self {
+    pub fn from_data(xml: &str) -> Self {
         let collision = get_layer(xml, "collision");
         let one_way_collision = get_layer(xml, "one_way_collision");
         let detail = get_layer(xml, "detail");
         let special = get_layer(xml, "special");
         let background = get_layer(xml, "background");
         let death = get_layer(xml, "death");
+
+        let mut world_state = WorldState::default();
+        let special = get_all_chunks(special);
+        for chunk in special.values() {
+            for (index, tile) in chunk.tiles.iter().enumerate() {
+                if *tile == 0 {
+                    continue;
+                }
+                let tile = *tile - 1;
+                let Some(ty) = EnemyType::from_i16(tile) else {
+                    warn!("ty {tile} doesnt exist!");
+                    continue;
+                };
+                let x = (index % 16) as i16 + chunk.x;
+                let y = (index / 16) as i16 + chunk.y;
+                let enemy = Enemy::new(vec2(x as f32 * 8.0, y as f32 * 8.0), ty);
+                world_state.enemies.push(enemy);
+            }
+        }
+
         World {
             collision: get_all_chunks(collision),
             one_way_collision: get_all_chunks(one_way_collision),
             details: get_all_chunks(detail),
-            special: get_all_chunks(special),
+            special,
             background: get_all_chunks(background),
             death: get_all_chunks(death),
+            world_state,
         }
     }
 }
