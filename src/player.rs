@@ -46,9 +46,6 @@ impl Player {
         if input.x != 0.0 {
             self.anim_state = AnimState::Walk;
             friction_mod = 1.0;
-            if self.grounded && input.x.is_sign_positive() != self.velocity.x.is_sign_positive() {
-                self.velocity.x = 0.0;
-            }
             self.facing_left = input.x.is_sign_negative();
             self.velocity.x += input.x * ACCELERATION * delta_time;
         } else {
