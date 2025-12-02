@@ -188,17 +188,18 @@ impl Spritesheet {
 pub enum TileEntity {}
 
 pub struct World {
-    pub collision: Vec<Chunk>,
-    pub one_way_collision: Vec<Chunk>,
-    pub details: Vec<Chunk>,
-    pub background: Vec<Chunk>,
-    pub special: Vec<Chunk>,
+    pub collision: HashMap<(i16, i16), Chunk>,
+    pub death: HashMap<(i16, i16), Chunk>,
+    pub one_way_collision: HashMap<(i16, i16), Chunk>,
+    pub details: HashMap<(i16, i16), Chunk>,
+    pub background: HashMap<(i16, i16), Chunk>,
+    pub special: HashMap<(i16, i16), Chunk>,
     pub tile_entities: HashMap<(i16, i16), TileEntity>,
 }
 impl World {
     pub fn get_player_spawn(&self) -> Vec2 {
         let mut highest = i16::MAX;
-        for chunk in self.collision.iter().filter(|f| f.x == 0) {
+        for chunk in self.collision.values().filter(|f| f.x == 0) {
             for row in 0..16 {
                 let tile = chunk.tiles[row * 16];
                 if tile != 0 {
@@ -212,7 +213,7 @@ impl World {
         vec2(1.0, (highest - 1) as f32 * 8.0)
     }
     pub fn get_interactable_spawn(&self, tile_index: i16) -> Option<Vec2> {
-        for chunk in self.special.iter() {
+        for chunk in self.special.values() {
             for (i, tile) in chunk.tiles.iter().enumerate() {
                 if *tile == tile_index + 1 {
                     return Some(Vec2::new(
@@ -230,12 +231,14 @@ impl World {
         let detail = get_layer(xml, "detail");
         let special = get_layer(xml, "special");
         let background = get_layer(xml, "background");
+        let death = get_layer(xml, "death");
         World {
             collision: get_all_chunks(collision),
             one_way_collision: get_all_chunks(one_way_collision),
             details: get_all_chunks(detail),
             special: get_all_chunks(special),
             background: get_all_chunks(background),
+            death: get_all_chunks(death),
             tile_entities: HashMap::new(),
         }
     }
@@ -272,12 +275,12 @@ impl Chunk {
     }
 }
 
-fn get_all_chunks(xml: &str) -> Vec<Chunk> {
-    let mut chunks = Vec::new();
+fn get_all_chunks(xml: &str) -> HashMap<(i16, i16), Chunk> {
+    let mut chunks = HashMap::new();
     let mut xml = xml.to_string();
     while let Some((current, remains)) = xml.split_once("</chunk>") {
         let new = parse_chunk(current);
-        chunks.push(new);
+        chunks.insert((new.x, new.y), new);
         xml = remains.to_string();
     }
 

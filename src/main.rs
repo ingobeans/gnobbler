@@ -35,13 +35,19 @@ impl<'a> Gnobbler<'a> {
         self.camera.target = self.player.camera_pos.floor();
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
-        for chunk in &self.assets.world.collision {
+        for chunk in self.assets.world.background.values() {
             chunk.draw(self.assets);
         }
-        for chunk in &self.assets.world.details {
+        for chunk in self.assets.world.collision.values() {
             chunk.draw(self.assets);
         }
-        for chunk in &self.assets.world.one_way_collision {
+        for chunk in self.assets.world.death.values() {
+            chunk.draw(self.assets);
+        }
+        for chunk in self.assets.world.details.values() {
+            chunk.draw(self.assets);
+        }
+        for chunk in self.assets.world.one_way_collision.values() {
             chunk.draw(self.assets);
         }
 
