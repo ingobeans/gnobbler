@@ -43,7 +43,6 @@ pub fn update_physicsbody(
     for (i, (tx, ty)) in tiles_y.into_iter().enumerate() {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
         if tile != 0
-            || world.tile_entities.contains_key(&(tx as i16, ty as i16))
             || (i < 2
                 && velocity.y > 0.0
                 && get_tile(&world.one_way_collision, tx as i16, ty as i16) != 0)
@@ -72,7 +71,7 @@ pub fn update_physicsbody(
             touched_death_tile = death_tile != 0;
         }
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if tile != 0 || world.tile_entities.contains_key(&(tx as i16, ty as i16)) {
+        if tile != 0 {
             let c = if velocity.x < 0.0 {
                 tile_x.floor() * 8.0
             } else {

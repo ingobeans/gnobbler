@@ -1,7 +1,7 @@
 use macroquad::{miniquad::window::screen_size, prelude::*};
 
 use crate::{
-    assets::Assets,
+    assets::{Assets, World},
     player::Player,
     utils::{SCREEN_HEIGHT, SCREEN_WIDTH, create_camera},
 };
@@ -10,6 +10,8 @@ mod assets;
 mod physics;
 mod player;
 mod utils;
+
+pub struct WorldState {}
 
 struct Gnobbler<'a> {
     assets: &'a Assets,

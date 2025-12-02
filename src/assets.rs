@@ -194,7 +194,6 @@ pub struct World {
     pub details: HashMap<(i16, i16), Chunk>,
     pub background: HashMap<(i16, i16), Chunk>,
     pub special: HashMap<(i16, i16), Chunk>,
-    pub tile_entities: HashMap<(i16, i16), TileEntity>,
 }
 impl World {
     pub fn get_player_spawn(&self) -> Vec2 {
@@ -239,7 +238,6 @@ impl World {
             special: get_all_chunks(special),
             background: get_all_chunks(background),
             death: get_all_chunks(death),
-            tile_entities: HashMap::new(),
         }
     }
 }

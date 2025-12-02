@@ -1,10 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{
-    assets::{Assets, World},
-    physics::update_physicsbody,
-    utils::*,
-};
+use crate::{assets::Assets, physics::update_physicsbody, utils::*};
 
 #[derive(Clone, Copy)]
 pub enum AnimState {
