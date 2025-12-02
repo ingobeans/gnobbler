@@ -77,11 +77,16 @@ impl<'a> Gnobbler<'a> {
         self.draw_world();
         let mut enemies = Vec::new();
         std::mem::swap(&mut enemies, &mut self.world_state.enemies);
+        let mut player_squashed_enemy = false;
         enemies.retain_mut(|enemy| {
             enemy.update(delta_time, self.assets, &self.world_state);
             enemy.draw(self.assets);
-            if self.player.alive() && self.player.pos.distance_squared(enemy.pos) < 64.0 {
-                if self.player.pos.y >= enemy.pos.y {
+            if !player_squashed_enemy
+                && self.player.alive()
+                && self.player.pos.distance_squared(enemy.pos) < 64.0
+            {
+                player_squashed_enemy = true;
+                if self.player.pos.y >= enemy.pos.y || self.player.velocity.y < 0.0 {
                     self.player.die();
                     true
                 } else {
