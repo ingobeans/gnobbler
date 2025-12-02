@@ -52,7 +52,7 @@ impl Enemy {
         let id = self.ty.to_usize().unwrap();
         draw_texture_ex(
             assets.enemies.animations[id].get_at_time((self.time * 1000.0) as u32),
-            self.pos.x.floor(),
+            self.pos.x.floor() - 4.0,
             self.pos.y.floor() - 8.0,
             WHITE,
             DrawTextureParams {
