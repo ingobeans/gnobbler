@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::ToPrimitive;
 
-use crate::{assets::Assets, physics::update_physicsbody};
+use crate::{assets::Assets, physics::update_physicsbody, utils::GRAVITY};
 
 #[derive(FromPrimitive, ToPrimitive, Clone)]
 pub enum EnemyType {
@@ -36,6 +36,7 @@ impl Enemy {
     }
     pub fn update(&mut self, delta_time: f32, assets: &Assets, broken_tiles: &[(i16, i16)]) {
         self.time += delta_time;
+        self.velocity.y += GRAVITY * delta_time;
         self.velocity.x = if self.facing_left { -1.0 } else { 1.0 } * self.ty.speed();
         (self.pos, _, _, _) = update_physicsbody(
             self.pos,
