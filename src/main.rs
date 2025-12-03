@@ -85,19 +85,29 @@ impl<'a> Gnobbler<'a> {
         self.draw_world();
         let mut player_squashed_enemy = false;
         self.world_state.enemies.retain_mut(|enemy| {
-            enemy.update(delta_time, self.assets, &self.world_state.broken_tiles);
-            enemy.draw(self.assets);
-            if !player_squashed_enemy
-                && self.player.alive()
-                && self.player.pos.distance_squared(enemy.pos) < 64.0
+            if !enemy.loaded
+                && (self.player.camera_pos.x..self.player.camera_pos.x + SCREEN_WIDTH / 2.0)
+                    .contains(&enemy.pos.x)
             {
-                player_squashed_enemy = true;
-                if self.player.pos.y >= enemy.pos.y || self.player.velocity.y < 0.0 {
-                    self.player.die();
-                    true
+                enemy.loaded = true;
+            }
+            if enemy.loaded {
+                enemy.update(delta_time, self.assets, &self.world_state.broken_tiles);
+                enemy.draw(self.assets);
+                if !player_squashed_enemy
+                    && self.player.alive()
+                    && self.player.pos.distance_squared(enemy.pos) < 64.0
+                {
+                    player_squashed_enemy = true;
+                    if self.player.pos.y >= enemy.pos.y || self.player.velocity.y < 0.0 {
+                        self.player.die();
+                        true
+                    } else {
+                        self.player.velocity.y = -2.5 * 60.0;
+                        false
+                    }
                 } else {
-                    self.player.velocity.y = -2.5 * 60.0;
-                    false
+                    true
                 }
             } else {
                 true

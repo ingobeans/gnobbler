@@ -23,6 +23,7 @@ pub struct Enemy {
     pub ty: EnemyType,
     pub facing_left: bool,
     pub time: f32,
+    pub loaded: bool,
 }
 impl Enemy {
     pub fn new(pos: Vec2, ty: EnemyType) -> Self {
@@ -32,6 +33,7 @@ impl Enemy {
             facing_left: true,
             time: 0.0,
             velocity: Vec2::ZERO,
+            loaded: false,
         }
     }
     pub fn update(&mut self, delta_time: f32, assets: &Assets, broken_tiles: &[(i16, i16)]) {
