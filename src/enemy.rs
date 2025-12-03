@@ -2,7 +2,11 @@ use macroquad::prelude::*;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::ToPrimitive;
 
-use crate::{assets::Assets, physics::update_physicsbody, utils::GRAVITY};
+use crate::{
+    assets::Assets,
+    physics::{get_tile_flag, update_physicsbody},
+    utils::GRAVITY,
+};
 
 #[derive(FromPrimitive, ToPrimitive, Clone)]
 pub enum EnemyType {
@@ -56,6 +60,21 @@ impl Enemy {
         );
         if old_velocity.x.abs() > self.velocity.x.abs() {
             self.facing_left = !self.facing_left;
+        }
+        let tile_pos =
+            (self.pos / 8.0 + vec2(if self.facing_left { -1.0 } else { 1.0 }, 1.0)).round();
+        let (tx, ty) = (tile_pos.x as i16, tile_pos.y as i16);
+        let (cx, cy) = (tx / 16 * 16, ty / 16 * 16);
+        if tx > 0 {
+            if let Some(c) = assets.levels[current_level].collision.get(&(cx, cy)) {
+                let tile = c
+                    .tile_at((tx - cx) as usize, (ty - cy) as usize)
+                    .unwrap_or(0);
+                let flags = get_tile_flag(tile);
+                if flags.is_no_collision() {
+                    self.facing_left = !self.facing_left
+                }
+            }
         }
     }
     pub fn draw(&self, assets: &Assets) {

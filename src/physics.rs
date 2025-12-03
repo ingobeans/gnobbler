@@ -29,14 +29,17 @@ pub enum TileFlag {
     Death,
 }
 impl TileFlag {
-    fn is_one_way(self) -> bool {
+    pub fn is_one_way(self) -> bool {
         matches!(self, TileFlag::OneWayCollision)
     }
-    fn is_death(self) -> bool {
+    pub fn is_death(self) -> bool {
         matches!(self, TileFlag::Death)
     }
-    fn is_collision(self) -> bool {
+    pub fn is_collision(self) -> bool {
         matches!(self, TileFlag::Collision)
+    }
+    pub fn is_no_collision(self) -> bool {
+        matches!(self, TileFlag::NoCollision)
     }
 }
 pub fn get_tile_flag(tile: i16) -> TileFlag {
