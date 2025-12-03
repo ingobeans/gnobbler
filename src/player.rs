@@ -64,6 +64,7 @@ impl Player {
         delta_time: f32,
         assets: &Assets,
         world_state: &mut WorldState,
+        current_level: usize,
     ) -> PlayerUpdateResult {
         self.time += delta_time;
         match self.player_state {
@@ -109,7 +110,7 @@ impl Player {
                     self.pos,
                     &mut self.velocity,
                     delta_time,
-                    &assets.world,
+                    &assets.levels[current_level],
                     &world_state.broken_tiles,
                 );
                 if touched_death_tile {

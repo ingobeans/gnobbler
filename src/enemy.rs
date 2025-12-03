@@ -36,7 +36,13 @@ impl Enemy {
             loaded: false,
         }
     }
-    pub fn update(&mut self, delta_time: f32, assets: &Assets, broken_tiles: &[(i16, i16)]) {
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        assets: &Assets,
+        broken_tiles: &[(i16, i16)],
+        current_level: usize,
+    ) {
         self.time += delta_time;
         self.velocity.y += GRAVITY * delta_time;
         self.velocity.x = if self.facing_left { -1.0 } else { 1.0 } * self.ty.speed();
@@ -44,7 +50,7 @@ impl Enemy {
             self.pos,
             &mut self.velocity,
             delta_time,
-            &assets.world,
+            &assets.levels[current_level],
             broken_tiles,
         );
     }

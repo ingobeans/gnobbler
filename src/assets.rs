@@ -9,13 +9,14 @@ use crate::{
     enemy::{Enemy, EnemyType},
     player::Player,
 };
-
 pub struct Assets {
     pub player: AnimationsGroup,
     pub enemies: AnimationsGroup,
     pub tileset: Spritesheet,
-    pub world: World,
+    pub levels: Vec<World>,
     pub coin: Animation,
+    pub start_btn: Animation,
+    pub menu_body: Texture2D,
 }
 impl Assets {
     pub fn load() -> Self {
@@ -27,7 +28,14 @@ impl Assets {
                 8.0,
             ),
             coin: Animation::from_file(include_bytes!("../assets/coin.ase")),
-            world: World::from_data(include_str!("../assets/world.tmx")),
+
+            start_btn: Animation::from_file(include_bytes!("../assets/start_btn.ase")),
+            menu_body: load_ase_texture(include_bytes!("../assets/menu_body.ase"), None),
+
+            levels: vec![
+                World::from_data(include_str!("../assets/menu.tmx")),
+                World::from_data(include_str!("../assets/world.tmx")),
+            ],
         }
     }
 }

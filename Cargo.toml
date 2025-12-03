@@ -1,6 +1,6 @@
 [package]
 name = "gnobbler"
-version = "0.3.14"
+version = "0.3.15"
 edition = "2024"
 
 [dependencies]
@@ -9,3 +9,4 @@ image = "0.24.9"
 asefile = "0.3.8"
 num-derive = "0.4.2"
 num-traits = "0.2.19"
+impl-new-derive = "0.1.3"

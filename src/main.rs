@@ -3,7 +3,7 @@ use macroquad::{miniquad::window::screen_size, prelude::*};
 use crate::{
     assets::*,
     player::{Player, PlayerUpdateResult},
-    utils::{SCREEN_HEIGHT, SCREEN_WIDTH, create_camera},
+    utils::*,
 };
 
 mod assets;
@@ -13,28 +13,35 @@ mod player;
 mod utils;
 
 struct Gnobbler<'a> {
+    in_main_menu: bool,
     assets: &'a Assets,
     player: Player,
     camera: Camera2D,
     world_state: WorldState,
     time: f32,
+    current_level: usize,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
-        let (world_state, player) = assets.world.load_level();
+        let (world_state, mut player) = assets.levels[0].load_level();
+        player.pos = vec2(-32.0, 0.0);
+        let mut camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
+        camera.target = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
         Self {
+            in_main_menu: true,
             player,
             world_state,
-            camera: create_camera(SCREEN_WIDTH, SCREEN_HEIGHT),
+            camera,
             assets,
             time: 0.0,
+            current_level: 0,
         }
     }
     fn draw_world(&self) {
         for layer in [
-            &self.assets.world.background,
-            &self.assets.world.collision,
-            &self.assets.world.details,
+            &self.assets.levels[self.current_level].background,
+            &self.assets.levels[self.current_level].collision,
+            &self.assets.levels[self.current_level].details,
         ] {
             for ((cx, cy), chunk) in layer.iter() {
                 for (index, tile) in chunk.tiles.iter().enumerate() {
@@ -71,18 +78,24 @@ impl<'a> Gnobbler<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        let result = self
-            .player
-            .update(delta_time, self.assets, &mut self.world_state);
+        let result = self.player.update(
+            delta_time,
+            self.assets,
+            &mut self.world_state,
+            self.current_level,
+        );
 
         match result {
             PlayerUpdateResult::RestartLevel => {
-                (self.world_state, self.player) = self.assets.world.load_level();
+                (self.world_state, self.player) =
+                    self.assets.levels[self.current_level].load_level();
             }
             PlayerUpdateResult::None => {}
         }
 
-        self.camera.target = self.player.camera_pos.floor();
+        if !self.in_main_menu {
+            self.camera.target = self.player.camera_pos.floor();
+        }
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
         self.draw_world();
@@ -95,7 +108,12 @@ impl<'a> Gnobbler<'a> {
                 enemy.loaded = true;
             }
             if enemy.loaded {
-                enemy.update(delta_time, self.assets, &self.world_state.broken_tiles);
+                enemy.update(
+                    delta_time,
+                    self.assets,
+                    &self.world_state.broken_tiles,
+                    self.current_level,
+                );
                 enemy.draw(self.assets);
                 if !player_squashed_enemy
                     && self.player.alive()
@@ -149,6 +167,38 @@ impl<'a> Gnobbler<'a> {
                 ..Default::default()
             },
         );
+        if self.in_main_menu {
+            let menu_size = self.assets.menu_body.size();
+            let menu_pos = vec2(
+                (actual_screen_width - menu_size.x * scale_factor) / 2.0,
+                11.0 * scale_factor,
+            );
+            let start_btn = UIImageButton::new(
+                menu_pos + vec2(7.0 * scale_factor, 29.0 * scale_factor),
+                &self.assets.start_btn.frames[0].0,
+                &self.assets.start_btn.frames[1].0,
+                scale_factor,
+            );
+            if start_btn.is_hovered() && is_mouse_button_pressed(MouseButton::Left) {
+                self.load_next_level();
+            }
+            draw_texture_ex(
+                &self.assets.menu_body,
+                menu_pos.x,
+                menu_pos.y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(menu_size * scale_factor),
+                    ..Default::default()
+                },
+            );
+            start_btn.draw();
+        }
+    }
+    fn load_next_level(&mut self) {
+        self.current_level += 1;
+        (self.world_state, self.player) = self.assets.levels[self.current_level].load_level();
+        self.in_main_menu = false;
     }
 }
 
