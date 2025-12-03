@@ -149,6 +149,13 @@ impl<'a> Gnobbler<'a> {
                 {
                     player_squashed_enemy = true;
                     if self.player.pos.y >= enemy.pos.y || self.player.velocity.y < 0.0 {
+                        play_sound(
+                            &self.assets.stomp_sfx,
+                            PlaySoundParams {
+                                looped: false,
+                                volume: self.actual_volume,
+                            },
+                        );
                         self.player.die();
                         true
                     } else {
