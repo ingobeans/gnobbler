@@ -46,6 +46,7 @@ impl Enemy {
         self.time += delta_time;
         self.velocity.y += GRAVITY * delta_time;
         self.velocity.x = if self.facing_left { -1.0 } else { 1.0 } * self.ty.speed();
+        let old_velocity = self.velocity;
         (self.pos, _, _, _) = update_physicsbody(
             self.pos,
             &mut self.velocity,
@@ -53,6 +54,9 @@ impl Enemy {
             &assets.levels[current_level],
             broken_tiles,
         );
+        if old_velocity.x.abs() > self.velocity.x.abs() {
+            self.facing_left = !self.facing_left;
+        }
     }
     pub fn draw(&self, assets: &Assets) {
         let id = self.ty.to_usize().unwrap();
