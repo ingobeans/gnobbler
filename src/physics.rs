@@ -10,7 +10,8 @@ fn ceil_g(a: f32) -> f32 {
 
 pub fn get_tile(chunks: &HashMap<(i16, i16), Chunk>, x: i16, y: i16) -> i16 {
     if x < 0 {
-        return 1;
+        // make left level boundary act as wall
+        return 50;
     }
     let tx = x / 16 * 16;
     let ty = y / 16 * 16;
