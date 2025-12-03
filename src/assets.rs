@@ -35,6 +35,7 @@ pub struct Animation {
     pub total_length: u32,
 }
 impl Animation {
+    #[expect(dead_code)]
     pub fn from_file(bytes: &[u8]) -> Self {
         let ase = AsepriteFile::read(bytes).unwrap();
         let mut frames = Vec::new();
@@ -72,11 +73,13 @@ impl Animation {
 }
 
 pub struct AnimationsGroup {
+    #[expect(dead_code)]
     pub file: AsepriteFile,
     pub animations: Vec<Animation>,
     pub tag_names: HashMap<String, usize>,
 }
 impl AnimationsGroup {
+    #[expect(dead_code)]
     pub fn get_by_name(&self, name: &str) -> &Animation {
         &self.animations[*self.tag_names.get(name).unwrap()]
     }
@@ -153,6 +156,7 @@ impl Spritesheet {
             sprite_size,
         }
     }
+    #[expect(dead_code)]
     /// Same as `draw_tile`, except centered
     pub fn draw_sprite(
         &self,
@@ -230,6 +234,7 @@ impl World {
         }
         vec2(1.0, (highest - 1) as f32 * 8.0)
     }
+    #[expect(dead_code)]
     pub fn get_interactable_spawn(&self, tile_index: i16) -> Option<Vec2> {
         for chunk in self.special.values() {
             for (i, tile) in chunk.tiles.iter().enumerate() {

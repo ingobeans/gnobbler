@@ -2,10 +2,7 @@ use macroquad::prelude::*;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::ToPrimitive;
 
-use crate::{
-    assets::{Assets, WorldState},
-    physics::update_physicsbody,
-};
+use crate::{assets::Assets, physics::update_physicsbody};
 
 #[derive(FromPrimitive, ToPrimitive, Clone)]
 pub enum EnemyType {
