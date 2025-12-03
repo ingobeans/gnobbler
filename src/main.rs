@@ -243,7 +243,7 @@ impl<'a> Gnobbler<'a> {
                 );
                 btn.draw();
                 if btn.is_hovered() && is_mouse_button_pressed(MouseButton::Left) {
-                    self.set_volume(self.volume + m * 0.1);
+                    self.set_volume((self.volume + m * 0.1).clamp(0.0, 2.0));
                 }
             }
             let volume_bar_pos = menu_pos + vec2(17.0 * scale_factor, 59.0 * scale_factor);
