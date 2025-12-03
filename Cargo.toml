@@ -1,10 +1,10 @@
 [package]
 name = "gnobbler"
-version = "0.3.15"
+version = "0.3.16"
 edition = "2024"
 
 [dependencies]
-macroquad = "0.4.14"
+macroquad = { version = "0.4.14", features = ["audio"] }
 image = "0.24.9"
 asefile = "0.3.8"
 num-derive = "0.4.2"

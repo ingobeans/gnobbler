@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use asefile::AsepriteFile;
 use image::EncodableLayout;
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{Sound, load_sound_from_bytes},
+    prelude::*,
+};
 use num_traits::FromPrimitive;
 
 use crate::{
@@ -17,9 +20,12 @@ pub struct Assets {
     pub coin: Animation,
     pub start_btn: Animation,
     pub menu_body: Texture2D,
+
+    pub coin_sfx: Sound,
+    pub stomp_sfx: Sound,
 }
 impl Assets {
-    pub fn load() -> Self {
+    pub async fn load() -> Self {
         Self {
             player: AnimationsGroup::from_file(include_bytes!("../assets/player.ase")),
             enemies: AnimationsGroup::from_file(include_bytes!("../assets/enemies.ase")),
@@ -31,6 +37,13 @@ impl Assets {
 
             start_btn: Animation::from_file(include_bytes!("../assets/start_btn.ase")),
             menu_body: load_ase_texture(include_bytes!("../assets/menu_body.ase"), None),
+
+            coin_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/coin.wav"))
+                .await
+                .unwrap(),
+            stomp_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/stomp.wav"))
+                .await
+                .unwrap(),
 
             levels: vec![
                 World::from_data(include_str!("../assets/menu.tmx")),

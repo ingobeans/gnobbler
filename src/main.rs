@@ -1,4 +1,8 @@
-use macroquad::{miniquad::window::screen_size, prelude::*};
+use macroquad::{
+    audio::{PlaySoundParams, play_sound},
+    miniquad::window::screen_size,
+    prelude::*,
+};
 
 use crate::{
     assets::*,
@@ -20,6 +24,7 @@ struct Gnobbler<'a> {
     world_state: WorldState,
     time: f32,
     current_level: usize,
+    volume: f32,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
@@ -35,6 +40,7 @@ impl<'a> Gnobbler<'a> {
             assets,
             time: 0.0,
             current_level: 0,
+            volume: 1.0,
         }
     }
     fn draw_world(&self) {
@@ -124,6 +130,13 @@ impl<'a> Gnobbler<'a> {
                         self.player.die();
                         true
                     } else {
+                        play_sound(
+                            &self.assets.stomp_sfx,
+                            PlaySoundParams {
+                                looped: false,
+                                volume: 1.0,
+                            },
+                        );
                         self.player.velocity.y = -2.5 * 60.0;
                         false
                     }
@@ -144,6 +157,13 @@ impl<'a> Gnobbler<'a> {
             );
             if self.player.pos.distance_squared(pos) < 64.0 {
                 self.world_state.taken_coins += 1;
+                play_sound(
+                    &self.assets.coin_sfx,
+                    PlaySoundParams {
+                        looped: false,
+                        volume: 1.0,
+                    },
+                );
                 false
             } else {
                 true
@@ -213,7 +233,7 @@ fn window_conf() -> Conf {
 }
 #[macroquad::main(window_conf)]
 async fn main() {
-    let assets = Assets::load();
+    let assets = Assets::load().await;
     let mut gnobbler = Gnobbler::new(&assets);
     loop {
         gnobbler.update();
