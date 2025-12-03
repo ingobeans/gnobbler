@@ -20,6 +20,39 @@ pub fn get_tile(chunks: &HashMap<(i16, i16), Chunk>, x: i16, y: i16) -> i16 {
         0
     }
 }
+#[derive(Clone, Copy)]
+pub enum TileFlag {
+    Collision,
+    NoCollision,
+    OneWayCollision,
+    Death,
+}
+impl TileFlag {
+    fn is_one_way(self) -> bool {
+        matches!(self, TileFlag::OneWayCollision)
+    }
+    fn is_death(self) -> bool {
+        matches!(self, TileFlag::Death)
+    }
+    fn is_no_collision(self) -> bool {
+        matches!(self, TileFlag::NoCollision)
+    }
+    fn is_collision(self) -> bool {
+        matches!(self, TileFlag::Collision)
+    }
+}
+pub fn get_tile_flag(tile: i16) -> TileFlag {
+    if tile == 0 {
+        TileFlag::NoCollision
+    } else {
+        match tile - 1 {
+            16..32 => TileFlag::Death,
+            32..48 => TileFlag::OneWayCollision,
+            64..80 => TileFlag::NoCollision,
+            _ => TileFlag::Collision,
+        }
+    }
+}
 pub fn update_physicsbody(
     pos: Vec2,
     velocity: &mut Vec2,
@@ -44,10 +77,9 @@ pub fn update_physicsbody(
     let mut grounded = false;
     for (i, (tx, ty)) in tiles_y.into_iter().enumerate() {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if (tile != 0 && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))))
-            || (i < 2
-                && velocity.y > 0.0
-                && get_tile(&world.one_way_collision, tx as i16, ty as i16) != 0)
+        let flag = get_tile_flag(tile);
+        if (flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))))
+            || (i < 2 && velocity.y > 0.0 && flag.is_one_way())
         {
             let c = if velocity.y < 0.0 {
                 if tile == 49 && broke_block.is_none() {
@@ -71,12 +103,12 @@ pub fn update_physicsbody(
     ];
 
     for (tx, ty) in tiles_x {
-        if !touched_death_tile && tx > 0.0 {
-            let death_tile = get_tile(&world.death, tx as i16, ty as i16);
-            touched_death_tile = death_tile != 0;
-        }
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
-        if tile != 0 && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))) {
+        let flag = get_tile_flag(tile);
+        if !touched_death_tile && tx > 0.0 {
+            touched_death_tile = flag.is_death();
+        }
+        if flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))) {
             let c = if velocity.x < 0.0 {
                 tile_x.floor() * 8.0
             } else {

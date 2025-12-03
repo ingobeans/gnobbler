@@ -32,9 +32,7 @@ impl<'a> Gnobbler<'a> {
         for layer in [
             &self.assets.world.collision,
             &self.assets.world.background,
-            &self.assets.world.death,
             &self.assets.world.details,
-            &self.assets.world.one_way_collision,
         ] {
             for ((cx, cy), chunk) in layer.iter() {
                 for (index, tile) in chunk.tiles.iter().enumerate() {

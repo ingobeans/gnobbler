@@ -204,8 +204,6 @@ pub struct WorldState {
 }
 pub struct World {
     pub collision: HashMap<(i16, i16), Chunk>,
-    pub death: HashMap<(i16, i16), Chunk>,
-    pub one_way_collision: HashMap<(i16, i16), Chunk>,
     pub details: HashMap<(i16, i16), Chunk>,
     pub background: HashMap<(i16, i16), Chunk>,
     pub special: HashMap<(i16, i16), Chunk>,
@@ -250,11 +248,9 @@ impl World {
     }
     pub fn from_data(xml: &str) -> Self {
         let collision = get_layer(xml, "collision");
-        let one_way_collision = get_layer(xml, "one_way_collision");
         let detail = get_layer(xml, "detail");
         let special = get_layer(xml, "special");
         let background = get_layer(xml, "background");
-        let death = get_layer(xml, "death");
 
         let mut world_state = WorldState::default();
         let special = get_all_chunks(special);
@@ -280,11 +276,9 @@ impl World {
 
         World {
             collision: get_all_chunks(collision),
-            one_way_collision: get_all_chunks(one_way_collision),
             details: get_all_chunks(detail),
             special,
             background: get_all_chunks(background),
-            death: get_all_chunks(death),
             world_state,
         }
     }
