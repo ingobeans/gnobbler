@@ -30,8 +30,8 @@ impl<'a> Gnobbler<'a> {
     }
     fn draw_world(&self) {
         for layer in [
-            &self.assets.world.collision,
             &self.assets.world.background,
+            &self.assets.world.collision,
             &self.assets.world.details,
         ] {
             for ((cx, cy), chunk) in layer.iter() {

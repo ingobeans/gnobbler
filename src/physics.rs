@@ -34,23 +34,16 @@ impl TileFlag {
     fn is_death(self) -> bool {
         matches!(self, TileFlag::Death)
     }
-    fn is_no_collision(self) -> bool {
-        matches!(self, TileFlag::NoCollision)
-    }
     fn is_collision(self) -> bool {
         matches!(self, TileFlag::Collision)
     }
 }
 pub fn get_tile_flag(tile: i16) -> TileFlag {
-    if tile == 0 {
-        TileFlag::NoCollision
-    } else {
-        match tile - 1 {
-            16..32 => TileFlag::Death,
-            32..48 => TileFlag::OneWayCollision,
-            64..80 => TileFlag::NoCollision,
-            _ => TileFlag::Collision,
-        }
+    match tile - 1 {
+        16..32 => TileFlag::Death,
+        32..48 => TileFlag::OneWayCollision,
+        48..64 => TileFlag::Collision,
+        _ => TileFlag::NoCollision,
     }
 }
 pub fn update_physicsbody(
