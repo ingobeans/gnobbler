@@ -18,6 +18,11 @@ pub enum PlayerState {
     Died,
 }
 
+pub enum PlayerUpdateResult {
+    None,
+    RestartLevel,
+}
+
 pub struct Player {
     pub pos: Vec2,
     pub camera_pos: Vec2,
@@ -54,7 +59,12 @@ impl Player {
         self.player_state = PlayerState::Died;
         self.time = 0.0;
     }
-    pub fn update(&mut self, delta_time: f32, assets: &Assets, world_state: &mut WorldState) {
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        assets: &Assets,
+        world_state: &mut WorldState,
+    ) -> PlayerUpdateResult {
         self.time += delta_time;
         match self.player_state {
             PlayerState::Active => {
@@ -121,6 +131,7 @@ impl Player {
                             max_delta * if delta < 0.0 { -1.0 } else { 1.0 } + target;
                     }
                 }
+                PlayerUpdateResult::None
             }
             PlayerState::Died => {
                 self.velocity = self.velocity.lerp(vec2(0.0, -32.0), delta_time * 8.0);
@@ -130,7 +141,9 @@ impl Player {
                     >= assets.player.animations[self.anim_state as usize].total_length as f32
                 {
                     // temporary, just to hide player off screen
-                    self.pos.y += 9999.0;
+                    PlayerUpdateResult::RestartLevel
+                } else {
+                    PlayerUpdateResult::None
                 }
             }
         }

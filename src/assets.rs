@@ -5,7 +5,10 @@ use image::EncodableLayout;
 use macroquad::prelude::*;
 use num_traits::FromPrimitive;
 
-use crate::enemy::{Enemy, EnemyType};
+use crate::{
+    enemy::{Enemy, EnemyType},
+    player::Player,
+};
 
 pub struct Assets {
     pub player: AnimationsGroup,
@@ -203,10 +206,16 @@ pub struct World {
     pub background: HashMap<(i16, i16), Chunk>,
     pub special: HashMap<(i16, i16), Chunk>,
 
-    pub world_state: WorldState,
+    world_state: WorldState,
 }
 impl World {
-    pub fn get_player_spawn(&self) -> Vec2 {
+    pub fn load_level(&self) -> (WorldState, Player) {
+        (
+            self.world_state.clone(),
+            Player::new(self.get_player_spawn()),
+        )
+    }
+    fn get_player_spawn(&self) -> Vec2 {
         let mut highest = i16::MAX;
         for chunk in self.collision.values().filter(|f| f.x == 0) {
             for row in 0..16 {

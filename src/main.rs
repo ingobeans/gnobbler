@@ -2,7 +2,7 @@ use macroquad::{miniquad::window::screen_size, prelude::*};
 
 use crate::{
     assets::*,
-    player::Player,
+    player::{Player, PlayerUpdateResult},
     utils::{SCREEN_HEIGHT, SCREEN_WIDTH, create_camera},
 };
 
@@ -20,10 +20,11 @@ struct Gnobbler<'a> {
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
+        let (world_state, player) = assets.world.load_level();
         Self {
-            player: Player::new(assets.world.get_player_spawn()),
+            player,
+            world_state,
             camera: create_camera(SCREEN_WIDTH, SCREEN_HEIGHT),
-            world_state: assets.world.world_state.clone(),
             assets,
         }
     }
@@ -69,8 +70,17 @@ impl<'a> Gnobbler<'a> {
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
 
-        self.player
+        let result = self
+            .player
             .update(delta_time, self.assets, &mut self.world_state);
+
+        match result {
+            PlayerUpdateResult::RestartLevel => {
+                (self.world_state, self.player) = self.assets.world.load_level();
+            }
+            PlayerUpdateResult::None => {}
+        }
+
         self.camera.target = self.player.camera_pos.floor();
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
