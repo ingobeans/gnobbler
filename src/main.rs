@@ -152,7 +152,16 @@ impl<'a> Gnobbler<'a> {
     }
 }
 
-#[macroquad::main("gnobbler")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "gnobbler".to_string(),
+        window_width: SCREEN_WIDTH as i32 * 3,
+        window_height: SCREEN_HEIGHT as i32 * 3,
+
+        ..Default::default()
+    }
+}
+#[macroquad::main(window_conf)]
 async fn main() {
     let assets = Assets::load();
     let mut gnobbler = Gnobbler::new(&assets);
