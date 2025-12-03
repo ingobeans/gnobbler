@@ -96,6 +96,15 @@ impl<'a> Gnobbler<'a> {
                 (self.world_state, self.player) =
                     self.assets.levels[self.current_level].load_level();
             }
+            PlayerUpdateResult::PlayStompSfx => {
+                play_sound(
+                    &self.assets.stomp_sfx,
+                    PlaySoundParams {
+                        looped: false,
+                        volume: self.volume,
+                    },
+                );
+            }
             PlayerUpdateResult::None => {}
         }
 
@@ -134,7 +143,7 @@ impl<'a> Gnobbler<'a> {
                             &self.assets.stomp_sfx,
                             PlaySoundParams {
                                 looped: false,
-                                volume: 1.0,
+                                volume: self.volume,
                             },
                         );
                         self.player.velocity.y = -2.5 * 60.0;
@@ -161,7 +170,7 @@ impl<'a> Gnobbler<'a> {
                     &self.assets.coin_sfx,
                     PlaySoundParams {
                         looped: false,
-                        volume: 1.0,
+                        volume: self.volume,
                     },
                 );
                 false

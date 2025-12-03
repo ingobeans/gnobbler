@@ -20,6 +20,7 @@ pub enum PlayerState {
 
 pub enum PlayerUpdateResult {
     None,
+    PlayStompSfx,
     RestartLevel,
 }
 
@@ -113,12 +114,6 @@ impl Player {
                     &assets.levels[current_level],
                     &world_state.broken_tiles,
                 );
-                if touched_death_tile {
-                    self.die();
-                }
-                if let Some(broke_block) = broke_block {
-                    world_state.broken_tiles.push(broke_block);
-                }
 
                 self.camera_pos.x = self.pos.x.max(SCREEN_WIDTH / 2.0);
                 let target = self.pos.y - 24.0;
@@ -132,7 +127,15 @@ impl Player {
                             max_delta * if delta < 0.0 { -1.0 } else { 1.0 } + target;
                     }
                 }
-                PlayerUpdateResult::None
+                if touched_death_tile {
+                    self.die();
+                    PlayerUpdateResult::PlayStompSfx
+                } else if let Some(broke_block) = broke_block {
+                    world_state.broken_tiles.push(broke_block);
+                    PlayerUpdateResult::PlayStompSfx
+                } else {
+                    PlayerUpdateResult::None
+                }
             }
             PlayerState::Died => {
                 self.velocity = self.velocity.lerp(vec2(0.0, -32.0), delta_time * 8.0);
