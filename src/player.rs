@@ -110,7 +110,7 @@ impl Player {
                     &mut self.velocity,
                     delta_time,
                     &assets.world,
-                    &world_state,
+                    &world_state.broken_tiles,
                 );
                 if touched_death_tile {
                     self.die();

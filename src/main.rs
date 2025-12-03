@@ -85,11 +85,9 @@ impl<'a> Gnobbler<'a> {
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
         self.draw_world();
-        let mut enemies = Vec::new();
-        std::mem::swap(&mut enemies, &mut self.world_state.enemies);
         let mut player_squashed_enemy = false;
-        enemies.retain_mut(|enemy| {
-            enemy.update(delta_time, self.assets, &self.world_state);
+        self.world_state.enemies.retain_mut(|enemy| {
+            enemy.update(delta_time, self.assets, &self.world_state.broken_tiles);
             enemy.draw(self.assets);
             if !player_squashed_enemy
                 && self.player.alive()
@@ -107,7 +105,6 @@ impl<'a> Gnobbler<'a> {
                 true
             }
         });
-        std::mem::swap(&mut enemies, &mut self.world_state.enemies);
 
         self.player.draw(self.assets);
 
