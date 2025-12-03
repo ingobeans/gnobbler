@@ -71,15 +71,30 @@ impl Player {
         match self.player_state {
             PlayerState::Active => {
                 let input = get_input_axis();
+
+                #[cfg(debug_assertions)]
+                let noclip = is_key_down(KeyCode::LeftShift);
+                #[cfg(not(debug_assertions))]
+                let noclip = false;
+
                 let friction_mod;
-                self.anim_state = AnimState::Idle;
-                if input.x != 0.0 {
-                    self.anim_state = AnimState::Walk;
-                    friction_mod = 1.0;
-                    self.facing_left = input.x.is_sign_negative();
-                    self.velocity.x += input.x * ACCELERATION * delta_time;
+                if noclip {
+                    self.velocity += input * delta_time * ACCELERATION;
+                    friction_mod = 0.0;
+                    self.velocity = self.velocity.lerp(
+                        Vec2::ZERO,
+                        5.0 * delta_time * (if input == Vec2::ZERO { 3.0 } else { 1.0 }),
+                    );
                 } else {
-                    friction_mod = 2.5;
+                    self.anim_state = AnimState::Idle;
+                    if input.x != 0.0 {
+                        self.anim_state = AnimState::Walk;
+                        friction_mod = 1.0;
+                        self.facing_left = input.x.is_sign_negative();
+                        self.velocity.x += input.x * ACCELERATION * delta_time;
+                    } else {
+                        friction_mod = 2.5;
+                    }
                 }
 
                 if self.grounded {
@@ -104,7 +119,9 @@ impl Player {
                     }
                     * delta_time;
 
-                self.velocity.y += GRAVITY * delta_time;
+                if !noclip {
+                    self.velocity.y += GRAVITY * delta_time;
+                }
                 let touched_death_tile;
                 let broke_block;
                 (self.pos, self.grounded, touched_death_tile, broke_block) = update_physicsbody(

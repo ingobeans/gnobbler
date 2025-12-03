@@ -10,6 +10,7 @@ use num_traits::FromPrimitive;
 
 use crate::{
     enemy::{Enemy, EnemyType},
+    physics::get_tile_flag,
     player::Player,
 };
 pub struct Assets {
@@ -241,6 +242,8 @@ pub struct World {
     pub background: HashMap<(i16, i16), Chunk>,
     pub special: HashMap<(i16, i16), Chunk>,
 
+    pub finish_pos: (i16, i16),
+
     world_state: WorldState,
 }
 impl World {
@@ -311,16 +314,71 @@ impl World {
             }
         }
 
+        let mut finish_line_pos = (i16::MIN, i16::MIN, i16::MIN, i16::MIN);
+        let mut background = get_all_chunks(background);
+        let collision = get_all_chunks(collision);
+        for chunk in collision.values() {
+            if chunk.x >= finish_line_pos.0 {
+                let mut highest_x = i16::MIN;
+
+                'outer: for x in (0..16).rev() {
+                    for y in 0..16 {
+                        let tile = chunk.tile_at(x, y).unwrap();
+                        let flags = get_tile_flag(tile);
+                        if !flags.is_no_collision() && !flags.is_death() {
+                            highest_x = x as i16;
+                            break 'outer;
+                        }
+                    }
+                }
+                if highest_x < 0 {
+                    continue;
+                }
+
+                let mut highest_y = i16::MIN;
+                for y in 0..16 {
+                    let tile = chunk.tile_at(highest_x as usize, y).unwrap();
+                    let flags = get_tile_flag(tile);
+                    if !flags.is_no_collision() && !flags.is_death() {
+                        highest_y = y as i16;
+                        break;
+                    }
+                }
+                if highest_y + chunk.y > finish_line_pos.1 {
+                    finish_line_pos = (chunk.x, chunk.y, chunk.x + highest_x, highest_y + chunk.y);
+                }
+            }
+        }
+        let mut new = Chunk {
+            x: finish_line_pos.0,
+            y: finish_line_pos.1,
+            tiles: vec![97; 16 * 16],
+        };
+        for y in 0..(finish_line_pos.3 - finish_line_pos.1 + 1) {
+            for x in 0..16 {
+                new.tiles[x + y as usize * 16] = 0;
+            }
+        }
+        for i in (finish_line_pos.3 - finish_line_pos.1 + 1) * 16
+            ..(finish_line_pos.3 - finish_line_pos.1 + 1) * 16 + 16
+        {
+            new.tiles[i as usize] = 19;
+        }
+        background.insert((finish_line_pos.0, finish_line_pos.1), new.clone());
+        background.insert((finish_line_pos.0 + 16, finish_line_pos.1), new);
+
         World {
-            collision: get_all_chunks(collision),
-            details: get_all_chunks(detail),
+            collision,
             special,
-            background: get_all_chunks(background),
+            background,
+            details: get_all_chunks(detail),
+            finish_pos: (finish_line_pos.2, finish_line_pos.3),
             world_state,
         }
     }
 }
 
+#[derive(Clone)]
 pub struct Chunk {
     pub x: i16,
     pub y: i16,
