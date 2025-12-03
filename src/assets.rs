@@ -18,7 +18,10 @@ pub struct Assets {
     pub tileset: Spritesheet,
     pub levels: Vec<World>,
     pub coin: Animation,
+
     pub start_btn: Animation,
+    pub plus_btn: Animation,
+    pub minus_btn: Animation,
     pub menu_body: Texture2D,
 
     pub coin_sfx: Sound,
@@ -37,6 +40,8 @@ impl Assets {
             coin: Animation::from_file(include_bytes!("../assets/coin.ase")),
 
             start_btn: Animation::from_file(include_bytes!("../assets/start_btn.ase")),
+            plus_btn: Animation::from_file(include_bytes!("../assets/plus_btn.ase")),
+            minus_btn: Animation::from_file(include_bytes!("../assets/minus_btn.ase")),
             menu_body: load_ase_texture(include_bytes!("../assets/menu_body.ase"), None),
 
             coin_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/coin.wav"))

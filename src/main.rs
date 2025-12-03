@@ -1,5 +1,7 @@
+use std::f32::consts::E;
+
 use macroquad::{
-    audio::{PlaySoundParams, play_sound, stop_sound},
+    audio::{PlaySoundParams, play_sound, set_sound_volume},
     miniquad::window::screen_size,
     prelude::*,
 };
@@ -25,6 +27,7 @@ struct Gnobbler<'a> {
     time: f32,
     current_level: usize,
     volume: f32,
+    actual_volume: f32,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
@@ -41,7 +44,14 @@ impl<'a> Gnobbler<'a> {
             time: 0.0,
             current_level: 0,
             volume: 1.0,
+            actual_volume: 1.0,
         }
+    }
+    fn set_volume(&mut self, new: f32) {
+        let actual = new.powf(E);
+        set_sound_volume(&self.assets.song, actual);
+        self.actual_volume = actual;
+        self.volume = new;
     }
     fn draw_world(&self) {
         for layer in [
@@ -101,7 +111,7 @@ impl<'a> Gnobbler<'a> {
                     &self.assets.stomp_sfx,
                     PlaySoundParams {
                         looped: false,
-                        volume: self.volume,
+                        volume: self.actual_volume,
                     },
                 );
             }
@@ -143,7 +153,7 @@ impl<'a> Gnobbler<'a> {
                             &self.assets.stomp_sfx,
                             PlaySoundParams {
                                 looped: false,
-                                volume: self.volume,
+                                volume: self.actual_volume,
                             },
                         );
                         self.player.velocity.y = -2.5 * 60.0;
@@ -170,7 +180,7 @@ impl<'a> Gnobbler<'a> {
                     &self.assets.coin_sfx,
                     PlaySoundParams {
                         looped: false,
-                        volume: self.volume,
+                        volume: self.actual_volume,
                     },
                 );
                 false
@@ -202,15 +212,6 @@ impl<'a> Gnobbler<'a> {
                 (actual_screen_width - menu_size.x * scale_factor) / 2.0,
                 11.0 * scale_factor,
             );
-            let start_btn = UIImageButton::new(
-                menu_pos + vec2(7.0 * scale_factor, 29.0 * scale_factor),
-                &self.assets.start_btn.frames[0].0,
-                &self.assets.start_btn.frames[1].0,
-                scale_factor,
-            );
-            if start_btn.is_hovered() && is_mouse_button_pressed(MouseButton::Left) {
-                self.load_next_level();
-            }
             draw_texture_ex(
                 &self.assets.menu_body,
                 menu_pos.x,
@@ -220,6 +221,39 @@ impl<'a> Gnobbler<'a> {
                     dest_size: Some(menu_size * scale_factor),
                     ..Default::default()
                 },
+            );
+            let start_btn = UIImageButton::new(
+                menu_pos + vec2(7.0 * scale_factor, 29.0 * scale_factor),
+                &self.assets.start_btn.frames[0].0,
+                &self.assets.start_btn.frames[1].0,
+                scale_factor,
+            );
+            if start_btn.is_hovered() && is_mouse_button_pressed(MouseButton::Left) {
+                self.load_next_level();
+            }
+            for (m, offset, anim) in [
+                (-1.0, 0.0, &self.assets.minus_btn),
+                (1.0, 84.0, &self.assets.plus_btn),
+            ] {
+                let btn = UIImageButton::new(
+                    menu_pos + vec2((7.0 + offset) * scale_factor, 59.0 * scale_factor),
+                    &anim.frames[0].0,
+                    &anim.frames[1].0,
+                    scale_factor,
+                );
+                btn.draw();
+                if btn.is_hovered() && is_mouse_button_pressed(MouseButton::Left) {
+                    self.set_volume(self.volume + m * 0.1);
+                }
+            }
+            let volume_bar_pos = menu_pos + vec2(17.0 * scale_factor, 59.0 * scale_factor);
+            let volume_bar_size = vec2(73.0, 9.0);
+            draw_rectangle(
+                volume_bar_pos.x,
+                volume_bar_pos.y,
+                volume_bar_size.x * scale_factor * self.volume / 2.0,
+                volume_bar_size.y * scale_factor,
+                Color::from_hex(0x8e5252),
             );
             start_btn.draw();
         }
