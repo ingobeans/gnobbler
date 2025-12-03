@@ -23,6 +23,7 @@ pub struct Assets {
 
     pub coin_sfx: Sound,
     pub stomp_sfx: Sound,
+    pub song: Sound,
 }
 impl Assets {
     pub async fn load() -> Self {
@@ -42,6 +43,9 @@ impl Assets {
                 .await
                 .unwrap(),
             stomp_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/stomp.wav"))
+                .await
+                .unwrap(),
+            song: load_sound_from_bytes(include_bytes!("../assets/sfx/song.wav"))
                 .await
                 .unwrap(),
 

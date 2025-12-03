@@ -1,5 +1,5 @@
 use macroquad::{
-    audio::{PlaySoundParams, play_sound},
+    audio::{PlaySoundParams, play_sound, stop_sound},
     miniquad::window::screen_size,
     prelude::*,
 };
@@ -235,6 +235,13 @@ fn window_conf() -> Conf {
 async fn main() {
     let assets = Assets::load().await;
     let mut gnobbler = Gnobbler::new(&assets);
+    play_sound(
+        &assets.song,
+        PlaySoundParams {
+            looped: true,
+            volume: 1.0,
+        },
+    );
     loop {
         gnobbler.update();
         next_frame().await;
