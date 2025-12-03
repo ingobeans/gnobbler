@@ -15,6 +15,7 @@ pub struct Assets {
     pub enemies: AnimationsGroup,
     pub tileset: Spritesheet,
     pub world: World,
+    pub coin: Animation,
 }
 impl Assets {
     pub fn load() -> Self {
@@ -25,6 +26,7 @@ impl Assets {
                 load_ase_texture(include_bytes!("../assets/tileset.ase"), None),
                 8.0,
             ),
+            coin: Animation::from_file(include_bytes!("../assets/coin.ase")),
             world: World::from_data(include_str!("../assets/world.tmx")),
         }
     }
@@ -35,7 +37,6 @@ pub struct Animation {
     pub total_length: u32,
 }
 impl Animation {
-    #[expect(dead_code)]
     pub fn from_file(bytes: &[u8]) -> Self {
         let ase = AsepriteFile::read(bytes).unwrap();
         let mut frames = Vec::new();
@@ -201,6 +202,8 @@ impl Spritesheet {
 pub struct WorldState {
     pub enemies: Vec<Enemy>,
     pub broken_tiles: Vec<(i16, i16)>,
+    pub coins: Vec<(i16, i16)>,
+    pub taken_coins: usize,
 }
 pub struct World {
     pub collision: HashMap<(i16, i16), Chunk>,
@@ -256,10 +259,16 @@ impl World {
         let special = get_all_chunks(special);
         for chunk in special.values() {
             for (index, tile) in chunk.tiles.iter().enumerate() {
+                let x = (index % 16) as i16 + chunk.x;
+                let y = (index / 16) as i16 + chunk.y;
                 if *tile == 0 {
                     continue;
+                } else if *tile == 1 {
+                    world_state.coins.push((x, y));
+                    continue;
                 }
-                let tile = *tile - 1;
+
+                let tile = *tile - 2;
                 if tile >= 16 {
                     continue;
                 }
@@ -267,8 +276,6 @@ impl World {
                     warn!("ty {tile} doesnt exist!");
                     continue;
                 };
-                let x = (index % 16) as i16 + chunk.x;
-                let y = (index / 16) as i16 + chunk.y;
                 let enemy = Enemy::new(vec2(x as f32 * 8.0, y as f32 * 8.0), ty);
                 world_state.enemies.push(enemy);
             }

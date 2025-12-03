@@ -17,6 +17,7 @@ struct Gnobbler<'a> {
     player: Player,
     camera: Camera2D,
     world_state: WorldState,
+    time: f32,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets) -> Self {
@@ -26,6 +27,7 @@ impl<'a> Gnobbler<'a> {
             world_state,
             camera: create_camera(SCREEN_WIDTH, SCREEN_HEIGHT),
             assets,
+            time: 0.0,
         }
     }
     fn draw_world(&self) {
@@ -64,6 +66,7 @@ impl<'a> Gnobbler<'a> {
     fn update(&mut self) {
         // cap delta time to a minimum of 60 fps.
         let delta_time = get_frame_time().min(1.0 / 60.0);
+        self.time += delta_time;
         let (actual_screen_width, actual_screen_height) = screen_size();
         let scale_factor =
             (actual_screen_width / SCREEN_WIDTH).min(actual_screen_height / SCREEN_HEIGHT);
@@ -109,6 +112,21 @@ impl<'a> Gnobbler<'a> {
                 } else {
                     true
                 }
+            } else {
+                true
+            }
+        });
+        self.world_state.coins.retain(|(x, y)| {
+            let pos = vec2(*x as f32 * 8.0, *y as f32 * 8.0);
+            draw_texture(
+                self.assets.coin.get_at_time((self.time * 1000.0) as u32),
+                pos.x,
+                pos.y,
+                WHITE,
+            );
+            if self.player.pos.distance_squared(pos) < 64.0 {
+                self.world_state.taken_coins += 1;
+                false
             } else {
                 true
             }
