@@ -30,16 +30,11 @@ struct Gnobbler<'a> {
     actual_volume: f32,
 }
 impl<'a> Gnobbler<'a> {
-    fn new(assets: &'a Assets) -> Self {
+    fn new(assets: &'a Assets, default_volume: f32) -> Self {
         let (world_state, mut player) = assets.levels[0].load_level();
         player.pos = vec2(-32.0, 0.0);
         let mut camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         camera.target = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
-
-        #[cfg(debug_assertions)]
-        let default_volume = 0.0;
-        #[cfg(not(debug_assertions))]
-        let default_volume = 1.0;
 
         let mut new = Self {
             in_main_menu: true,
@@ -285,14 +280,19 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let assets = Assets::load().await;
-    let mut gnobbler = Gnobbler::new(&assets);
+
+    #[cfg(debug_assertions)]
+    let default_volume = 0.0;
+    #[cfg(not(debug_assertions))]
+    let default_volume = 1.0;
     play_sound(
         &assets.song,
         PlaySoundParams {
             looped: true,
-            volume: 1.0,
+            volume: default_volume,
         },
     );
+    let mut gnobbler = Gnobbler::new(&assets, default_volume);
     loop {
         gnobbler.update();
         next_frame().await;
