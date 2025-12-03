@@ -35,7 +35,13 @@ impl<'a> Gnobbler<'a> {
         player.pos = vec2(-32.0, 0.0);
         let mut camera = create_camera(SCREEN_WIDTH, SCREEN_HEIGHT);
         camera.target = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
-        Self {
+
+        #[cfg(debug_assertions)]
+        let default_volume = 0.0;
+        #[cfg(not(debug_assertions))]
+        let default_volume = 1.0;
+
+        let mut new = Self {
             in_main_menu: true,
             player,
             world_state,
@@ -43,9 +49,11 @@ impl<'a> Gnobbler<'a> {
             assets,
             time: 0.0,
             current_level: 0,
-            volume: 1.0,
-            actual_volume: 1.0,
-        }
+            volume: 0.0,
+            actual_volume: 0.0,
+        };
+        new.set_volume(default_volume);
+        new
     }
     fn set_volume(&mut self, new: f32) {
         let actual = new.powf(E);
