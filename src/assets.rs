@@ -60,6 +60,7 @@ impl Assets {
             levels: vec![
                 World::from_data(include_str!("../assets/menu.tmx")),
                 World::from_data(include_str!("../assets/world.tmx")),
+                World::from_data(include_str!("../assets/world2.tmx")),
             ],
         }
     }
@@ -237,6 +238,7 @@ pub struct WorldState {
     pub broken_tiles: Vec<(i16, i16)>,
     pub coins: Vec<(i16, i16)>,
     pub taken_coins: usize,
+    pub boat_offset: f32,
 }
 pub struct World {
     pub collision: HashMap<(i16, i16), Chunk>,

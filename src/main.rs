@@ -118,6 +118,11 @@ impl<'a> Gnobbler<'a> {
                     },
                 );
             }
+            PlayerUpdateResult::NextLevel => {
+                self.current_level += 1;
+                (self.world_state, self.player) =
+                    self.assets.levels[self.current_level].load_level();
+            }
             PlayerUpdateResult::None => {}
         }
 
@@ -128,7 +133,10 @@ impl<'a> Gnobbler<'a> {
         clear_background(Color::from_hex(0x00aaff));
         self.draw_world();
         let pos = self.assets.levels[self.current_level].finish_pos;
-        let pos = vec2((pos.0 * 8) as f32 + 8.0, (pos.1 * 8) as f32 - 32.0);
+        let mut pos = vec2((pos.0 * 8) as f32 + 8.0, (pos.1 * 8) as f32 - 32.0);
+        if self.world_state.boat_offset > BOAT_WAIT_TIME {
+            pos.x += (self.world_state.boat_offset - BOAT_WAIT_TIME) * BOAT_MOVE_SPEED;
+        }
         draw_texture(&self.assets.boat, pos.x, pos.y, WHITE);
         let mut player_squashed_enemy = false;
         self.world_state.enemies.retain_mut(|enemy| {

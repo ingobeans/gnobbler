@@ -9,6 +9,9 @@ pub const AIR_DRAG: f32 = 0.15 * 60.0;
 pub const GRAVITY: f32 = 0.17 * 3600.0;
 pub const ACCELERATION: f32 = 2400.0 / 2.0;
 
+pub const BOAT_WAIT_TIME: f32 = 0.2;
+pub const BOAT_MOVE_SPEED: f32 = 64.0;
+
 pub fn create_camera(w: f32, h: f32) -> Camera2D {
     let rt = render_target(w as u32, h as u32);
     rt.texture.set_filter(FilterMode::Nearest);

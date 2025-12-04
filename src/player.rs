@@ -6,7 +6,7 @@ use crate::{
     utils::*,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum AnimState {
     Idle,
     Walk,
@@ -16,12 +16,14 @@ pub enum AnimState {
 pub enum PlayerState {
     Active,
     Died,
+    Won,
 }
 
 pub enum PlayerUpdateResult {
     None,
     PlayStompSfx,
     RestartLevel,
+    NextLevel,
 }
 
 pub struct Player {
@@ -79,7 +81,7 @@ impl Player {
 
                 let friction_mod;
                 if noclip {
-                    self.velocity += input * delta_time * ACCELERATION * 1.5;
+                    self.velocity += input * delta_time * ACCELERATION * 2.5;
                     self.anim_state = AnimState::Idle;
                     friction_mod = 0.0;
                     self.velocity = self.velocity.lerp(
@@ -96,6 +98,10 @@ impl Player {
                     } else {
                         friction_mod = 2.5;
                     }
+                }
+
+                if self.pos.x >= (assets.levels[current_level].finish_pos.0 * 8) as f32 {
+                    self.player_state = PlayerState::Won;
                 }
 
                 if self.grounded {
@@ -168,6 +174,34 @@ impl Player {
                 {
                     // temporary, just to hide player off screen
                     PlayerUpdateResult::RestartLevel
+                } else {
+                    PlayerUpdateResult::None
+                }
+            }
+            PlayerState::Won => {
+                let target = assets.levels[current_level].finish_pos;
+                let target = vec2(target.0 as f32 + 2.5, target.1 as f32 - 0.2) * 8.0;
+                self.anim_state = AnimState::Walk;
+                self.pos = self.pos.move_towards(target, delta_time * 16.0);
+                if world_state.boat_offset > 0.0 {
+                    world_state.boat_offset += delta_time;
+                }
+                if self.pos.distance_squared(target) < 1.0 {
+                    self.anim_state = AnimState::Idle;
+                    if world_state.boat_offset == 0.0 {
+                        world_state.boat_offset += delta_time;
+                    }
+                }
+                if world_state.boat_offset > BOAT_WAIT_TIME {
+                    self.anim_state = AnimState::Idle;
+                    self.pos = target
+                        + vec2(
+                            (world_state.boat_offset - BOAT_WAIT_TIME) * BOAT_MOVE_SPEED,
+                            0.0,
+                        );
+                }
+                if self.pos.x > self.camera_pos.x + SCREEN_WIDTH / 2.0 {
+                    PlayerUpdateResult::NextLevel
                 } else {
                     PlayerUpdateResult::None
                 }
