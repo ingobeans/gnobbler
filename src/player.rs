@@ -79,7 +79,8 @@ impl Player {
 
                 let friction_mod;
                 if noclip {
-                    self.velocity += input * delta_time * ACCELERATION;
+                    self.velocity += input * delta_time * ACCELERATION * 1.5;
+                    self.anim_state = AnimState::Idle;
                     friction_mod = 0.0;
                     self.velocity = self.velocity.lerp(
                         Vec2::ZERO,
@@ -119,18 +120,22 @@ impl Player {
                     }
                     * delta_time;
 
-                if !noclip {
-                    self.velocity.y += GRAVITY * delta_time;
-                }
                 let touched_death_tile;
                 let broke_block;
-                (self.pos, self.grounded, touched_death_tile, broke_block) = update_physicsbody(
-                    self.pos,
-                    &mut self.velocity,
-                    delta_time,
-                    &assets.levels[current_level],
-                    &world_state.broken_tiles,
-                );
+                if !noclip {
+                    self.velocity.y += GRAVITY * delta_time;
+                    (self.pos, self.grounded, touched_death_tile, broke_block) = update_physicsbody(
+                        self.pos,
+                        &mut self.velocity,
+                        delta_time,
+                        &assets.levels[current_level],
+                        &world_state.broken_tiles,
+                    );
+                } else {
+                    touched_death_tile = false;
+                    broke_block = None;
+                    self.pos += self.velocity * delta_time;
+                }
 
                 self.camera_pos.x = self.pos.x.max(SCREEN_WIDTH / 2.0);
                 let target = self.pos.y - 24.0;
