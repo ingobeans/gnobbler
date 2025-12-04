@@ -311,6 +311,20 @@ async fn main() {
         },
     );
     let mut gnobbler = Gnobbler::new(&assets, default_volume);
+
+    #[cfg(debug_assertions)]
+    {
+        use std::env::args;
+
+        if let Some(index) = args().find_map(|f| {
+            f.strip_prefix("level=")
+                .and_then(|f| f.parse::<usize>().ok())
+        }) {
+            gnobbler.current_level = index;
+            (gnobbler.world_state, gnobbler.player) = assets.levels[index].load_level();
+            gnobbler.in_main_menu = gnobbler.current_level == 0;
+        }
+    }
     loop {
         gnobbler.update();
         next_frame().await;
