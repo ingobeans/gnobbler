@@ -127,6 +127,9 @@ impl<'a> Gnobbler<'a> {
         set_camera(&self.camera);
         clear_background(Color::from_hex(0x00aaff));
         self.draw_world();
+        let pos = self.assets.levels[self.current_level].finish_pos;
+        let pos = vec2((pos.0 * 8) as f32 + 8.0, (pos.1 * 8) as f32 - 32.0);
+        draw_texture(&self.assets.boat, pos.x, pos.y, WHITE);
         let mut player_squashed_enemy = false;
         self.world_state.enemies.retain_mut(|enemy| {
             if !enemy.loaded

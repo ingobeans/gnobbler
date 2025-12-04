@@ -19,6 +19,7 @@ pub struct Assets {
     pub tileset: Spritesheet,
     pub levels: Vec<World>,
     pub coin: Animation,
+    pub boat: Texture2D,
 
     pub start_btn: Animation,
     pub plus_btn: Animation,
@@ -39,6 +40,7 @@ impl Assets {
                 8.0,
             ),
             coin: Animation::from_file(include_bytes!("../assets/coin.ase")),
+            boat: load_ase_texture(include_bytes!("../assets/boat.ase"), None),
 
             start_btn: Animation::from_file(include_bytes!("../assets/start_btn.ase")),
             plus_btn: Animation::from_file(include_bytes!("../assets/plus_btn.ase")),
