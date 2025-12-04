@@ -102,7 +102,10 @@ pub fn update_physicsbody(
     for (tx, ty) in tiles_x {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
         let flag = get_tile_flag(tile);
-        if !touched_death_tile && tx > 0.0 {
+        if !touched_death_tile
+            && tx > 0.0
+            && (new + vec2(4.0, 0.0)).distance_squared(vec2(tx + 0.5, ty) * 8.0) < 16.0
+        {
             touched_death_tile = flag.is_death();
         }
         if flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))) {
