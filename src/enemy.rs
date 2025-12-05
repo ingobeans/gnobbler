@@ -71,7 +71,7 @@ impl Enemy {
                     .tile_at((tx - cx) as usize, (ty - cy) as usize)
                     .unwrap_or(0);
                 let flags = get_tile_flag(tile);
-                if flags.is_no_collision() {
+                if flags.is_no_collision() || flags.is_death() {
                     self.facing_left = !self.facing_left
                 }
             }
