@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use asefile::AsepriteFile;
 use image::EncodableLayout;
+use include_dir::{Dir, include_dir};
 use macroquad::{
     audio::{Sound, load_sound_from_bytes},
     prelude::*,
@@ -32,6 +33,12 @@ pub struct Assets {
 }
 impl Assets {
     pub async fn load() -> Self {
+        let mut levels = Vec::new();
+        static LEVELS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/levels");
+        for file in LEVELS_DIR.files() {
+            let level = World::from_data(file.contents_utf8().unwrap());
+            levels.push(level);
+        }
         Self {
             player: AnimationsGroup::from_file(include_bytes!("../assets/player.ase")),
             enemies: AnimationsGroup::from_file(include_bytes!("../assets/enemies.ase")),
@@ -57,11 +64,7 @@ impl Assets {
                 .await
                 .unwrap(),
 
-            levels: vec![
-                World::from_data(include_str!("../assets/menu.tmx")),
-                World::from_data(include_str!("../assets/world.tmx")),
-                World::from_data(include_str!("../assets/world2.tmx")),
-            ],
+            levels,
         }
     }
 }
