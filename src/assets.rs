@@ -26,6 +26,8 @@ pub struct Assets {
     pub plus_btn: Animation,
     pub minus_btn: Animation,
     pub menu_body: Texture2D,
+    pub bar_ui: Texture2D,
+    pub numbers: Spritesheet,
 
     pub coin_sfx: Sound,
     pub stomp_sfx: Sound,
@@ -53,6 +55,11 @@ impl Assets {
             plus_btn: Animation::from_file(include_bytes!("../assets/plus_btn.ase")),
             minus_btn: Animation::from_file(include_bytes!("../assets/minus_btn.ase")),
             menu_body: load_ase_texture(include_bytes!("../assets/menu_body.ase"), None),
+            numbers: Spritesheet::new(
+                load_ase_texture(include_bytes!("../assets/numbers.ase"), None),
+                6.0,
+            ),
+            bar_ui: load_ase_texture(include_bytes!("../assets/bar_ui.ase"), None),
 
             coin_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/coin.wav"))
                 .await
@@ -65,6 +72,14 @@ impl Assets {
                 .unwrap(),
 
             levels,
+        }
+    }
+    pub fn draw_number(&self, text: &str, x: f32, y: f32) {
+        for (index, char) in text.chars().enumerate() {
+            let i = char as u32 - '0' as u32;
+            assert!(i <= 9);
+            self.numbers
+                .draw_tile(x + index as f32 * 5.0, y, i as f32, 0.0, None);
         }
     }
 }
@@ -240,7 +255,6 @@ pub struct WorldState {
     pub enemies: Vec<Enemy>,
     pub broken_tiles: Vec<(i16, i16)>,
     pub coins: Vec<(i16, i16)>,
-    pub taken_coins: usize,
     pub boat_offset: f32,
 }
 pub struct World {

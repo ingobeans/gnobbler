@@ -28,6 +28,7 @@ struct Gnobbler<'a> {
     current_level: usize,
     volume: f32,
     actual_volume: f32,
+    coins: u32,
 }
 impl<'a> Gnobbler<'a> {
     fn new(assets: &'a Assets, default_volume: f32) -> Self {
@@ -37,6 +38,7 @@ impl<'a> Gnobbler<'a> {
         camera.target = vec2(SCREEN_WIDTH / 2.0, SCREEN_HEIGHT / 2.0);
 
         let mut new = Self {
+            coins: 0,
             in_main_menu: true,
             player,
             world_state,
@@ -196,7 +198,7 @@ impl<'a> Gnobbler<'a> {
                 WHITE,
             );
             if self.player.pos.distance_squared(pos) < 64.0 {
-                self.world_state.taken_coins += 1;
+                self.coins += 1;
                 play_sound(
                     &self.assets.coin_sfx,
                     PlaySoundParams {
@@ -212,6 +214,29 @@ impl<'a> Gnobbler<'a> {
 
         self.player.draw(self.assets);
 
+        if !self.in_main_menu {
+            draw_texture(
+                &self.assets.bar_ui,
+                self.camera.target.x - SCREEN_WIDTH / 2.0,
+                self.camera.target.y - SCREEN_HEIGHT / 2.0 + 0.0,
+                WHITE,
+            );
+            self.assets.draw_number(
+                &self.coins.to_string(),
+                self.camera.target.x - SCREEN_WIDTH / 2.0 + 9.0,
+                self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
+            );
+            self.assets.draw_number(
+                &format!("{:0>2}", (self.time as f32 / 60.0) as u32),
+                self.camera.target.x - SCREEN_WIDTH / 2.0 + 32.0,
+                self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
+            );
+            self.assets.draw_number(
+                &format!("{:0>2}", (self.time as f32 % 60.0) as u32),
+                self.camera.target.x - SCREEN_WIDTH / 2.0 + 32.0 + 14.0,
+                self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
+            );
+        }
         set_default_camera();
         clear_background(BLACK);
         draw_texture_ex(
@@ -280,6 +305,9 @@ impl<'a> Gnobbler<'a> {
         }
     }
     fn load_next_level(&mut self) {
+        if self.current_level == 0 {
+            self.time = 0.0;
+        }
         self.current_level += 1;
         (self.world_state, self.player) = self.assets.levels[self.current_level].load_level();
         self.in_main_menu = false;
