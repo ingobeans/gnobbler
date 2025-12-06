@@ -13,8 +13,8 @@ pub fn get_tile(chunks: &HashMap<(i16, i16), Chunk>, x: i16, y: i16) -> i16 {
         // make left level boundary act as wall
         return 50;
     }
-    let tx = x / 16 * 16;
-    let ty = y / 16 * 16;
+    let tx = ((x as f32 / 16.0).floor() * 16.0) as i16;
+    let ty = ((y as f32 / 16.0).floor() * 16.0) as i16;
     if let Some(c) = chunks.get(&(tx, ty)) {
         c.tile_at((x - tx) as usize, (y - ty) as usize).unwrap_or(0)
     } else {
@@ -60,6 +60,7 @@ pub fn update_physicsbody(
     let mut new = pos + *velocity * delta_time;
     let mut touched_death_tile = false;
     let mut broke_block = None;
+    let original_velocity = *velocity;
 
     let tile_x = pos.x / 8.0;
     let tile_y = pos.y / 8.0;
@@ -98,6 +99,7 @@ pub fn update_physicsbody(
         (ceil_g(new.x / 8.0), (new.y / 8.0).trunc()),
         ((new.x / 8.0).trunc(), (new.y / 8.0).trunc()),
     ];
+    let mut touched_trampoline = false;
 
     for (tx, ty) in tiles_x {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
@@ -107,6 +109,13 @@ pub fn update_physicsbody(
             && (new + vec2(4.0, 0.0)).distance_squared(vec2(tx + 0.5, ty) * 8.0) < 16.0
         {
             touched_death_tile = flag.is_death();
+        }
+        if !touched_trampoline
+            && tile == 113
+            && original_velocity.y > 0.0
+            && (new + vec2(4.0, 0.0)).distance_squared(vec2(tx + 0.5, ty) * 8.0) < 16.0
+        {
+            velocity.y = -4.5 * 60.0;
         }
         if flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))) {
             let c = if velocity.x < 0.0 {
