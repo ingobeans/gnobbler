@@ -227,12 +227,12 @@ impl<'a> Gnobbler<'a> {
                 self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
             );
             self.assets.draw_number(
-                &format!("{:0>2}", (self.time as f32 / 60.0) as u32),
+                &format!("{:0>2}", (self.time / 60.0) as u32),
                 self.camera.target.x - SCREEN_WIDTH / 2.0 + 32.0,
                 self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
             );
             self.assets.draw_number(
-                &format!("{:0>2}", (self.time as f32 % 60.0) as u32),
+                &format!("{:0>2}", (self.time % 60.0) as u32),
                 self.camera.target.x - SCREEN_WIDTH / 2.0 + 32.0 + 14.0,
                 self.camera.target.y - SCREEN_HEIGHT / 2.0 + 1.0,
             );

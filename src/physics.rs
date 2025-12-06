@@ -99,7 +99,6 @@ pub fn update_physicsbody(
         (ceil_g(new.x / 8.0), (new.y / 8.0).trunc()),
         ((new.x / 8.0).trunc(), (new.y / 8.0).trunc()),
     ];
-    let mut touched_trampoline = false;
 
     for (tx, ty) in tiles_x {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
@@ -110,8 +109,7 @@ pub fn update_physicsbody(
         {
             touched_death_tile = flag.is_death();
         }
-        if !touched_trampoline
-            && tile == 113
+        if tile == 113
             && original_velocity.y > 0.0
             && (new + vec2(4.0, 0.0)).distance_squared(vec2(tx + 0.5, ty) * 8.0) < 16.0
         {
