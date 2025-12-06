@@ -56,9 +56,10 @@ pub fn update_physicsbody(
     delta_time: f32,
     world: &World,
     broken_tiles: &[(i16, i16)],
-) -> (Vec2, bool, bool, Option<(i16, i16)>) {
+) -> (Vec2, bool, bool, Option<(i16, i16)>, bool) {
     let mut new = pos + *velocity * delta_time;
     let mut touched_death_tile = false;
+    let mut jumped_on_trampoline = false;
     let mut broke_block = None;
     let original_velocity = *velocity;
 
@@ -109,11 +110,13 @@ pub fn update_physicsbody(
         {
             touched_death_tile = flag.is_death();
         }
-        if tile == 113
+        if !jumped_on_trampoline
+            && tile == 113
             && original_velocity.y > 0.0
             && (new + vec2(4.0, 0.0)).distance_squared(vec2(tx + 0.5, ty) * 8.0) < 16.0
         {
             velocity.y = -4.5 * 60.0;
+            jumped_on_trampoline = true;
         }
         if flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))) {
             let c = if velocity.x < 0.0 {
@@ -126,5 +129,11 @@ pub fn update_physicsbody(
             break;
         }
     }
-    (new, grounded, touched_death_tile, broke_block)
+    (
+        new,
+        grounded,
+        touched_death_tile,
+        broke_block,
+        jumped_on_trampoline,
+    )
 }

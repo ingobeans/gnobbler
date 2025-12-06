@@ -22,6 +22,7 @@ pub enum PlayerState {
 pub enum PlayerUpdateResult {
     None,
     PlayStompSfx,
+    PlayTrampolineSfx,
     RestartLevel,
     NextLevel,
 }
@@ -128,9 +129,16 @@ impl Player {
 
                 let touched_death_tile;
                 let broke_block;
+                let jumped_on_trampoline;
                 if !noclip {
                     self.velocity.y += GRAVITY * delta_time;
-                    (self.pos, self.grounded, touched_death_tile, broke_block) = update_physicsbody(
+                    (
+                        self.pos,
+                        self.grounded,
+                        touched_death_tile,
+                        broke_block,
+                        jumped_on_trampoline,
+                    ) = update_physicsbody(
                         self.pos,
                         &mut self.velocity,
                         delta_time,
@@ -139,6 +147,7 @@ impl Player {
                     );
                 } else {
                     touched_death_tile = false;
+                    jumped_on_trampoline = false;
                     broke_block = None;
                     self.pos += self.velocity * delta_time;
                 }
@@ -161,6 +170,8 @@ impl Player {
                 } else if let Some(broke_block) = broke_block {
                     world_state.broken_tiles.push(broke_block);
                     PlayerUpdateResult::PlayStompSfx
+                } else if jumped_on_trampoline {
+                    PlayerUpdateResult::PlayTrampolineSfx
                 } else {
                     PlayerUpdateResult::None
                 }

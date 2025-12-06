@@ -31,6 +31,7 @@ pub struct Assets {
 
     pub coin_sfx: Sound,
     pub stomp_sfx: Sound,
+    pub jump_sfx: Sound,
     pub song: Sound,
 }
 impl Assets {
@@ -65,6 +66,9 @@ impl Assets {
                 .await
                 .unwrap(),
             stomp_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/stomp.wav"))
+                .await
+                .unwrap(),
+            jump_sfx: load_sound_from_bytes(include_bytes!("../assets/sfx/jump.wav"))
                 .await
                 .unwrap(),
             song: load_sound_from_bytes(include_bytes!("../assets/sfx/song.wav"))

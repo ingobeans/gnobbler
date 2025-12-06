@@ -51,7 +51,7 @@ impl Enemy {
         self.velocity.y += GRAVITY * delta_time;
         self.velocity.x = if self.facing_left { -1.0 } else { 1.0 } * self.ty.speed();
         let old_velocity = self.velocity;
-        (self.pos, _, _, _) = update_physicsbody(
+        (self.pos, _, _, _, _) = update_physicsbody(
             self.pos,
             &mut self.velocity,
             delta_time,

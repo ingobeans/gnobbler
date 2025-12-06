@@ -120,6 +120,15 @@ impl<'a> Gnobbler<'a> {
                     },
                 );
             }
+            PlayerUpdateResult::PlayTrampolineSfx => {
+                play_sound(
+                    &self.assets.jump_sfx,
+                    PlaySoundParams {
+                        looped: false,
+                        volume: self.actual_volume,
+                    },
+                );
+            }
             PlayerUpdateResult::NextLevel => {
                 self.current_level += 1;
                 (self.world_state, self.player) =
