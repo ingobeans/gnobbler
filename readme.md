@@ -7,6 +7,8 @@
 
 a retro platformer inspired by the original super mario bros games! if you dont know what a gnobbler is, thats fine, neither do i.
 
+the game features coins, enemies, spikes, trampolines, gnobbler, 4 levels, and a tiny soundtrack i made.
+
 written in RUST (i love you rust).
 
 made for hackclub's [siege](https://siege.hackclub.com/), for the **final week!!!**
