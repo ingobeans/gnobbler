@@ -28,6 +28,7 @@ pub struct Assets {
     pub menu_body: Texture2D,
     pub bar_ui: Texture2D,
     pub numbers: Spritesheet,
+    pub win_screen: Texture2D,
 
     pub coin_sfx: Sound,
     pub stomp_sfx: Sound,
@@ -38,7 +39,11 @@ impl Assets {
     pub async fn load() -> Self {
         let mut levels = Vec::new();
         static LEVELS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/levels");
-        for file in LEVELS_DIR.files() {
+        let mut iter = LEVELS_DIR.files().peekable();
+        while let Some(file) = iter.next() {
+            if iter.peek().is_none() {
+                continue;
+            }
             let level = World::from_data(file.contents_utf8().unwrap());
             levels.push(level);
         }
@@ -56,6 +61,7 @@ impl Assets {
             plus_btn: Animation::from_file(include_bytes!("../assets/plus_btn.ase")),
             minus_btn: Animation::from_file(include_bytes!("../assets/minus_btn.ase")),
             menu_body: load_ase_texture(include_bytes!("../assets/menu_body.ase"), None),
+            win_screen: load_ase_texture(include_bytes!("../assets/win_screen.ase"), None),
             numbers: Spritesheet::new(
                 load_ase_texture(include_bytes!("../assets/numbers.ase"), None),
                 6.0,

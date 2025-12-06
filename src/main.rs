@@ -219,10 +219,13 @@ impl<'a> Gnobbler<'a> {
                 true
             }
         });
-
+        let on_last_level = self.current_level == self.assets.levels.len() - 1;
+        if on_last_level {
+            draw_texture(&self.assets.win_screen, 12.0, 12.0, WHITE);
+        }
         self.player.draw(self.assets);
 
-        if !self.in_main_menu {
+        if !self.in_main_menu && !on_last_level {
             draw_texture(
                 &self.assets.bar_ui,
                 self.camera.target.x - SCREEN_WIDTH / 2.0,
