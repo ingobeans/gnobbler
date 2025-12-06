@@ -152,8 +152,7 @@ impl<'a> Gnobbler<'a> {
         let mut player_squashed_enemy = false;
         self.world_state.enemies.retain_mut(|enemy| {
             if !enemy.loaded
-                && (self.player.camera_pos.x..self.player.camera_pos.x + SCREEN_WIDTH / 2.0)
-                    .contains(&enemy.pos.x)
+                && (0.0..self.player.camera_pos.x + SCREEN_WIDTH / 2.0).contains(&enemy.pos.x)
             {
                 enemy.loaded = true;
             }
