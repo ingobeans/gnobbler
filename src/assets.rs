@@ -365,7 +365,7 @@ impl World {
                         break;
                     }
                 }
-                if highest_y + chunk.y > finish_line_pos.1 {
+                if highest_x + chunk.x > finish_line_pos.2 {
                     finish_line_pos = (chunk.x, chunk.y, chunk.x + highest_x, highest_y + chunk.y);
                 }
             }

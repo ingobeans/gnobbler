@@ -73,11 +73,11 @@ pub fn update_physicsbody(
     ];
 
     let mut grounded = false;
-    for (i, (tx, ty)) in tiles_y.into_iter().enumerate() {
+    for (tx, ty) in tiles_y.into_iter() {
         let tile = get_tile(&world.collision, tx as i16, ty as i16);
         let flag = get_tile_flag(tile);
         if (flag.is_collision() && !(tile == 49 && broken_tiles.contains(&(tx as i16, ty as i16))))
-            || (i < 2 && velocity.y > 0.0 && flag.is_one_way())
+            || (velocity.y > 0.0 && ty.trunc() > tile_y.trunc() && flag.is_one_way())
         {
             let c = if velocity.y < 0.0 {
                 if tile == 49 && broke_block.is_none() {
