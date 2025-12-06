@@ -11,11 +11,13 @@ use crate::{
 #[derive(FromPrimitive, ToPrimitive, Clone)]
 pub enum EnemyType {
     Snail,
+    Crab,
 }
 impl EnemyType {
     fn speed(&self) -> f32 {
         match self {
             EnemyType::Snail => 8.0,
+            EnemyType::Crab => 20.0,
         }
     }
 }
@@ -64,7 +66,10 @@ impl Enemy {
         let tile_pos =
             (self.pos / 8.0 + vec2(if self.facing_left { -1.0 } else { 1.0 }, 1.0)).round();
         let (tx, ty) = (tile_pos.x as i16, tile_pos.y as i16);
-        let (cx, cy) = (tx / 16 * 16, ty / 16 * 16);
+        let (cx, cy) = (
+            (tx as f32 / 16.0).floor() as i16 * 16,
+            (ty as f32 / 16.0).floor() as i16 * 16,
+        );
         if tx > 0
             && let Some(c) = assets.levels[current_level].collision.get(&(cx, cy))
         {
