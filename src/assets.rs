@@ -375,18 +375,14 @@ impl World {
             y: finish_line_pos.1,
             tiles: vec![97; 16 * 16],
         };
-        for y in 0..(finish_line_pos.3 - finish_line_pos.1 + 1) {
-            for x in 0..16 {
-                new.tiles[x + y as usize * 16] = 0;
-            }
+        for x in 0..16 {
+            new.tiles[x] = 0;
         }
-        for i in (finish_line_pos.3 - finish_line_pos.1 + 1) * 16
-            ..(finish_line_pos.3 - finish_line_pos.1 + 1) * 16 + 16
-        {
+        for i in 16..32 {
             new.tiles[i as usize] = 19;
         }
-        background.insert((finish_line_pos.0, finish_line_pos.1), new.clone());
-        background.insert((finish_line_pos.0 + 16, finish_line_pos.1), new);
+        background.insert((finish_line_pos.2, finish_line_pos.3), new.clone());
+        background.insert((finish_line_pos.2 + 16, finish_line_pos.3), new);
 
         World {
             collision,
