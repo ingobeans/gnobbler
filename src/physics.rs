@@ -58,6 +58,12 @@ pub fn update_physicsbody(
     broken_tiles: &[(i16, i16)],
 ) -> (Vec2, bool, bool, Option<(i16, i16)>, bool) {
     let mut new = pos + *velocity * delta_time;
+    if new.y - 8.0 > pos.y {
+        new.y = pos.y + 8.0;
+    }
+    if new.y + 8.0 < pos.y {
+        new.y = pos.y - 8.0;
+    }
     let mut touched_death_tile = false;
     let mut jumped_on_trampoline = false;
     let mut broke_block = None;
