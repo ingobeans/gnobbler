@@ -13,7 +13,9 @@ written in RUST (i love you rust).
 
 made for hackclub's [siege](https://siege.hackclub.com/), for the **final week!!!**
 
-## building
+## building from source
+
+(if you just want to try the game, simply visit the [itch.io page](https://gnarmi.itch.io/gnobbler) where you can play it in your browser)
 
 you'll need rust installed. to run, simply do `cargo run`.
 
